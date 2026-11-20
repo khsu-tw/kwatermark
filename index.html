@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
   <meta name="theme-color" content="#007AFF" />
-  <title>KWatermark — iOS 照片與 PDF 浮水印工具</title>
+  <title>KWatermark</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -102,22 +102,23 @@
         </div>
         <div class="truncate">
           <h1 class="text-base font-semibold tracking-tight text-gray-900 truncate">KWatermark</h1>
-          <p class="text-[11px] text-gray-500 truncate">本機處理不上傳・支援照片與 PDF</p>
+          <p id="headerSubtitle" class="text-[11px] text-gray-500 truncate">本機處理不上傳・支援照片與 PDF</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <button id="langToggleBtn" type="button" class="px-2.5 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-700 text-xs font-semibold transition" aria-label="Switch Language">EN</button>
         <label for="fileInput" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-800 text-xs font-medium transition">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
-          <span>選擇檔案</span>
+          <span id="chooseFileText">選擇檔案</span>
         </label>
         <button id="exportBtn" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#007AFF] hover:bg-[#0066D6] active:scale-95 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          <span id="exportBtnText">匯出成品</span>
+          <span id="exportBtnText">匯出檔案</span>
         </button>
       </div>
     </div>
@@ -128,12 +129,12 @@
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-3 sm:px-5 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
-    <!-- Left / Top: Live Preview Card -->
-    <section class="lg:col-span-7 lg:sticky lg:top-18 bg-white rounded-2xl shadow-sm border border-gray-200/70 overflow-hidden">
+    <!-- Left / Top: Live Preview Card (always visible while scrolling) -->
+    <section class="sticky top-14 z-20 lg:col-span-7 lg:top-16 bg-white rounded-2xl shadow-sm border border-gray-200/70 overflow-hidden">
       <div class="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 min-w-0">
           <span id="fileTypeBadge" class="px-2 py-0.5 rounded-md bg-blue-50 text-[#007AFF] text-[11px] font-semibold shrink-0">範例文件</span>
-          <span id="fileNameLabel" class="text-xs text-gray-600 truncate">身分證件影本範例.png</span>
+          <span id="fileNameLabel" class="text-xs text-gray-600 truncate hidden"></span>
         </div>
         <div id="pdfPageControls" class="hidden items-center gap-1.5 shrink-0">
           <button id="prevPageBtn" type="button" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 disabled:opacity-35" aria-label="上一頁">
@@ -147,8 +148,8 @@
       </div>
 
       <!-- Canvas Preview Viewport -->
-      <div id="dropZone" class="checkerboard relative flex items-center justify-center p-3 sm:p-5 min-h-[280px] sm:min-h-[380px] max-h-[60vh] lg:max-h-[72vh] overflow-hidden">
-        <canvas id="previewCanvas" class="max-w-full max-h-[54vh] lg:max-h-[66vh] w-auto h-auto rounded-lg shadow-md bg-white"></canvas>
+      <div id="dropZone" class="checkerboard relative flex items-center justify-center p-2.5 sm:p-4 lg:p-5 min-h-[190px] sm:min-h-[260px] lg:min-h-[380px] max-h-[34vh] sm:max-h-[42vh] lg:max-h-[72vh] overflow-hidden">
+        <canvas id="previewCanvas" class="max-w-full max-h-[30vh] sm:max-h-[38vh] lg:max-h-[66vh] w-auto h-auto rounded-lg shadow-md bg-white"></canvas>
 
         <!-- Loading Overlay -->
         <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
@@ -173,8 +174,8 @@
       <!-- 1. Watermark Content -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-3">
         <div class="flex items-center justify-between">
-          <label for="wmText" class="text-sm font-semibold text-gray-900">浮水印內容</label>
-          <span class="text-[11px] text-gray-400">支援欄位自動帶入與手動編輯</span>
+          <label id="wmContentTitle" for="wmText" class="text-sm font-semibold text-gray-900">浮水印內容</label>
+          <span id="wmContentHint" class="text-[11px] text-gray-400">支援欄位自動帶入與手動編輯</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -198,15 +199,15 @@ Under the NDA agreement</textarea>
 
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
           <button type="button" id="ndaPresetBtn" class="shrink-0 px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-[11px] font-semibold text-[#007AFF] transition">NDA 範本</button>
-          <button type="button" data-preset="僅供身分驗證使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">身分驗證</button>
-          <button type="button" data-preset="機密文件 請勿外流" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">機密文件</button>
+          <button type="button" id="presetIdBtn" data-preset-key="id" data-preset="僅供身分驗證使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">身分驗證</button>
+          <button type="button" id="presetConfBtn" data-preset-key="conf" data-preset="機密文件 請勿外流" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">機密文件</button>
         </div>
       </div>
 
       <!-- 2. Layout & Scale -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-sm font-semibold text-gray-900">版面與縮放</span>
+          <span id="layoutSectionTitle" class="text-sm font-semibold text-gray-900">版面與縮放</span>
           <div class="inline-flex rounded-lg bg-gray-100 p-0.5">
             <button id="modeTileBtn" type="button" class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition">滿版平鋪</button>
             <button id="modeSingleBtn" type="button" class="px-3 py-1 rounded-md text-xs font-medium text-gray-600 transition">單一置中</button>
@@ -216,17 +217,17 @@ Under the NDA agreement</textarea>
         <!-- Overall Scale Ratio -->
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-gray-700">整體佔版面縮放比例</span>
+            <span id="overallScaleLabel" class="font-medium text-gray-700">整體佔版面縮放比例</span>
             <span id="overallScaleVal" class="font-semibold text-[#007AFF] tabular-nums">125%</span>
           </div>
           <input id="overallScaleInput" type="range" min="25" max="200" step="5" value="125" />
-          <p class="text-[11px] text-gray-400">等比例放大或縮小浮水印在整體版面上的視覺佔比</p>
+          <p id="overallScaleHint" class="text-[11px] text-gray-400">等比例放大或縮小浮水印在整體版面上的視覺佔比</p>
         </div>
 
         <!-- Tile Spacing (only shown in Tile mode) -->
         <div id="spacingControlWrap" class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-gray-700">平鋪間距密度</span>
+            <span id="spacingLabel" class="font-medium text-gray-700">平鋪間距密度</span>
             <span id="spacingVal" class="font-semibold text-[#007AFF] tabular-nums">100%</span>
           </div>
           <input id="spacingInput" type="range" min="50" max="220" step="5" value="100" />
@@ -236,14 +237,14 @@ Under the NDA agreement</textarea>
       <!-- 3. Typography, Angle, Color & Opacity -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-4">
         <div class="flex items-center justify-between">
-          <span class="text-sm font-semibold text-gray-900">樣式微調</span>
+          <span id="styleSectionTitle" class="text-sm font-semibold text-gray-900">樣式微調</span>
           <button id="resetStyleBtn" type="button" class="text-xs text-[#007AFF] font-medium hover:underline">重設預設值</button>
         </div>
 
         <!-- Font Size & Weight -->
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-gray-700">字體大小</span>
+            <span id="fontSizeLabel" class="font-medium text-gray-700">字體大小</span>
             <div class="flex items-center gap-2">
               <button id="boldToggleBtn" type="button" class="px-2 py-0.5 rounded border border-[#007AFF] bg-blue-50 text-[#007AFF] text-[11px] font-bold transition">粗體 B</button>
               <span id="fontSizeVal" class="font-semibold text-[#007AFF] tabular-nums w-10 text-right">34 pt</span>
@@ -255,7 +256,7 @@ Under the NDA agreement</textarea>
         <!-- Angle -->
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-gray-700">旋轉角度</span>
+            <span id="angleLabel" class="font-medium text-gray-700">旋轉角度</span>
             <span id="angleVal" class="font-semibold text-[#007AFF] tabular-nums">-30°</span>
           </div>
           <input id="angleInput" type="range" min="-180" max="180" step="1" value="-30" />
@@ -271,7 +272,7 @@ Under the NDA agreement</textarea>
         <!-- Opacity -->
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-gray-700">透明度</span>
+            <span id="opacityLabel" class="font-medium text-gray-700">透明度</span>
             <span id="opacityVal" class="font-semibold text-[#007AFF] tabular-nums">15%</span>
           </div>
           <input id="opacityInput" type="range" min="5" max="100" step="1" value="15" />
@@ -280,7 +281,7 @@ Under the NDA agreement</textarea>
         <!-- Color -->
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-gray-700">字型顏色</span>
+            <span id="colorLabel" class="font-medium text-gray-700">字型顏色</span>
             <span id="colorHexLabel" class="font-mono text-[11px] text-gray-500 uppercase">#DC2626</span>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
@@ -297,21 +298,13 @@ Under the NDA agreement</textarea>
         </div>
       </div>
 
-      <!-- 4. Export Options -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-3">
-        <div id="photoFormatWrap" class="flex items-center justify-between">
-          <span class="text-xs font-medium text-gray-700">照片輸出格式</span>
-          <div class="inline-flex rounded-lg bg-gray-100 p-0.5">
-            <button id="fmtJpgBtn" type="button" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition">JPG (檔案較小)</button>
-            <button id="fmtPngBtn" type="button" class="px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 transition">PNG (無損)</button>
-          </div>
+      <!-- 4. Export Format Option (only shown for Photos) -->
+      <div id="photoFormatWrap" class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 flex items-center justify-between">
+        <span id="photoFormatLabel" class="text-xs font-medium text-gray-700">圖片輸出格式</span>
+        <div class="inline-flex rounded-lg bg-gray-100 p-0.5">
+          <button id="fmtJpgBtn" type="button" class="px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 transition">JPG (檔案較小)</button>
+          <button id="fmtPngBtn" type="button" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition">PNG (無損)</button>
         </div>
-        <button id="exportMainBtn" type="button" class="w-full py-3 rounded-xl bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-          </svg>
-          <span id="exportMainText">儲存 / 分享加浮水印後的成品</span>
-        </button>
       </div>
 
     </section>
@@ -326,21 +319,21 @@ Under the NDA agreement</textarea>
   <div id="iosTipModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
-        <h2 class="text-base font-bold text-gray-900">iPhone / iOS 使用說明</h2>
+        <h2 id="modalTitle" class="text-base font-bold text-gray-900">iPhone / iOS 使用說明</h2>
         <button id="closeModalBtn" type="button" class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">✕</button>
       </div>
       <div class="space-y-3 text-xs text-gray-600 leading-relaxed">
         <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-100">
-          <p class="font-semibold text-gray-900 mb-1">1. 匯出到「照片」或「檔案」</p>
-          <p>在 iPhone Safari 點擊「匯出成品」後，會叫出 iOS 原生分享選單：照片可選擇「儲存影像」直接存入相簿；PDF 可選擇「儲存到檔案」。</p>
+          <p id="modalTip1Title" class="font-semibold text-gray-900 mb-1">1. 匯出到「照片」或「檔案」</p>
+          <p id="modalTip1Body">在 iPhone Safari 點擊「匯出檔案」後，會叫出 iOS 原生分享選單：照片可選擇「儲存影像」直接存入相簿；PDF 可選擇「儲存到檔案」。</p>
         </div>
         <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
-          <p class="font-semibold text-gray-900 mb-1">2. 加到主畫面像 App 一樣使用</p>
-          <p>在 Safari 下方點選「分享」圖示 → 選擇「加入主畫面」，之後就能從桌面直接開啟。</p>
+          <p id="modalTip2Title" class="font-semibold text-gray-900 mb-1">2. 加到主畫面像 App 一樣使用</p>
+          <p id="modalTip2Body">在 Safari 下方點選「分享」圖示 → 選擇「加入主畫面」，之後就能從桌面直接開啟。</p>
         </div>
         <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
-          <p class="font-semibold text-gray-900 mb-1">3. 隱私安全</p>
-          <p>所有照片與 PDF 均在您的 iPhone 瀏覽器本機端運算，不會上傳至任何伺服器。</p>
+          <p id="modalTip3Title" class="font-semibold text-gray-900 mb-1">3. 隱私安全</p>
+          <p id="modalTip3Body">所有照片與 PDF 均在您的 iPhone 瀏覽器本機端運算，不會上傳至任何伺服器。</p>
         </div>
       </div>
       <button id="confirmModalBtn" type="button" class="w-full py-2.5 rounded-xl bg-[#007AFF] text-white text-sm font-semibold">我知道了</button>
@@ -357,8 +350,125 @@ Under the NDA agreement</textarea>
           'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       }
 
+      // Localization (zh / en)
+      const I18N = {
+        zh: {
+          toggleBtn: 'EN',
+          subtitle: '本機處理不上傳・支援照片與 PDF',
+          chooseFile: '選擇檔案',
+          exportBtn: '匯出檔案',
+          badgeSample: '範例文件',
+          badgeImage: '照片',
+          badgePdf: 'PDF',
+          resetSample: '重設為範例',
+          iosTip: 'iPhone 使用小技巧',
+          wmContentTitle: '浮水印內容',
+          wmContentHint: '支援欄位自動帶入與手動編輯',
+          wmPlaceholder: '請輸入浮水印文字...',
+          ndaPreset: 'NDA 範本',
+          presetIdLabel: '身分驗證',
+          presetIdText: '僅供身分驗證使用',
+          presetConfLabel: '機密文件',
+          presetConfText: '機密文件 請勿外流',
+          layoutTitle: '版面與縮放',
+          modeTile: '滿版平鋪',
+          modeSingle: '單一置中',
+          overallScaleLabel: '整體佔版面縮放比例',
+          overallScaleHint: '等比例放大或縮小浮水印在整體版面上的視覺佔比',
+          spacingLabel: '平鋪間距密度',
+          styleTitle: '樣式微調',
+          resetStyle: '重設預設值',
+          fontSizeLabel: '字體大小',
+          boldBtn: '粗體 B',
+          angleLabel: '旋轉角度',
+          opacityLabel: '透明度',
+          colorLabel: '字型顏色',
+          photoFormatLabel: '圖片輸出格式',
+          fmtJpg: 'JPG (檔案較小)',
+          fmtPng: 'PNG (無損)',
+          exportMain: '儲存 / 分享加浮水印後的成品',
+          modalTitle: 'iPhone / iOS 使用說明',
+          modalTip1Title: '1. 匯出到「照片」或「檔案」',
+          modalTip1Body: '在 iPhone Safari 點擊「匯出檔案」後，會叫出 iOS 原生分享選單：照片可選擇「儲存影像」直接存入相簿；PDF 可選擇「儲存到檔案」。',
+          modalTip2Title: '2. 加到主畫面像 App 一樣使用',
+          modalTip2Body: '在 Safari 下方點選「分享」圖示 → 選擇「加入主畫面」，之後就能從桌面直接開啟。',
+          modalTip3Title: '3. 隱私安全',
+          modalTip3Body: '所有照片與 PDF 均在您的 iPhone 瀏覽器本機端運算，不會上傳至任何伺服器。',
+          modalConfirm: '我知道了',
+          dimSize: (w, h) => `尺寸：${w} × ${h} px`,
+          dimPdf: (p, n) => `PDF 預覽：第 ${p} 頁（共 ${n} 頁）`,
+          toastSample: '已切換回範例文件',
+          toastResetStyle: '已重設浮水印樣式',
+          toastLoadedImg: '已載入照片',
+          toastLoadedPdf: (n) => `已載入 PDF（共 ${n} 頁）`,
+          toastShareOpened: '已開啟分享 / 儲存選單',
+          toastDownloaded: '已開始下載成品',
+          toastLang: '已切換為繁體中文'
+        },
+        en: {
+          toggleBtn: '繁中',
+          subtitle: 'Local Processing Only · Photos & PDF',
+          chooseFile: 'Choose File',
+          exportBtn: 'Export',
+          badgeSample: 'Sample',
+          badgeImage: 'Photo',
+          badgePdf: 'PDF',
+          resetSample: 'Reset Sample',
+          iosTip: 'iPhone Tips',
+          wmContentTitle: 'Watermark Content',
+          wmContentHint: 'Auto-fills template or edit freely',
+          wmPlaceholder: 'Enter watermark text...',
+          ndaPreset: 'NDA Template',
+          presetIdLabel: 'ID Verification',
+          presetIdText: 'For ID Verification Only',
+          presetConfLabel: 'Confidential',
+          presetConfText: 'CONFIDENTIAL · DO NOT DISTRIBUTE',
+          layoutTitle: 'Layout & Scale',
+          modeTile: 'Tiled',
+          modeSingle: 'Centered',
+          overallScaleLabel: 'Overall Layout Scale',
+          overallScaleHint: 'Scales watermark footprint proportionally across the page',
+          spacingLabel: 'Tile Spacing',
+          styleTitle: 'Style',
+          resetStyle: 'Reset Defaults',
+          fontSizeLabel: 'Font Size',
+          boldBtn: 'Bold B',
+          angleLabel: 'Rotation Angle',
+          opacityLabel: 'Opacity',
+          colorLabel: 'Font Color',
+          photoFormatLabel: 'Photo Format',
+          fmtJpg: 'JPG (Smaller)',
+          fmtPng: 'PNG (Lossless)',
+          exportMain: 'Save / Share Watermarked File',
+          modalTitle: 'iPhone / iOS Guide',
+          modalTip1Title: '1. Save to Photos or Files',
+          modalTip1Body: 'Tap "Export" in iPhone Safari to open the iOS Share Sheet: choose "Save Image" for photos, or "Save to Files" for PDFs.',
+          modalTip2Title: '2. Add to Home Screen',
+          modalTip2Body: 'Tap the Share icon in Safari and choose "Add to Home Screen" to use it like a standalone app.',
+          modalTip3Title: '3. Privacy First',
+          modalTip3Body: 'All photos and PDFs are processed locally on your device and never uploaded to any server.',
+          modalConfirm: 'Got it',
+          dimSize: (w, h) => `Size: ${w} × ${h} px`,
+          dimPdf: (p, n) => `PDF Preview: Page ${p} of ${n}`,
+          toastSample: 'Reset to sample document',
+          toastResetStyle: 'Watermark style reset to defaults',
+          toastLoadedImg: 'Photo loaded',
+          toastLoadedPdf: (n) => `PDF loaded (${n} pages)`,
+          toastShareOpened: 'Share / Save sheet opened',
+          toastDownloaded: 'Download started',
+          toastLang: 'Switched to English'
+        }
+      };
+
+      let savedLang = 'zh';
+      try {
+        const stored = localStorage.getItem('kwatermark_lang');
+        if (stored === 'en' || stored === 'zh') savedLang = stored;
+      } catch (e) {}
+
       // App State
       const state = {
+        lang: savedLang,
         fileType: 'sample', // 'sample' | 'image' | 'pdf'
         fileName: '身分證件影本範例.png',
         imageObj: null,
@@ -367,7 +477,7 @@ Under the NDA agreement</textarea>
         pdfPageNum: 1,
         pdfNumPages: 1,
         baseCanvas: document.createElement('canvas'),
-        photoFormat: 'jpg', // 'jpg' | 'png'
+        photoFormat: 'png', // 'jpg' | 'png'
         watermark: {
           companyName: '',
           userName: '',
@@ -386,6 +496,7 @@ Under the NDA agreement</textarea>
 
       // DOM Elements
       const els = {
+        langToggleBtn: document.getElementById('langToggleBtn'),
         fileInput: document.getElementById('fileInput'),
         previewCanvas: document.getElementById('previewCanvas'),
         dropZone: document.getElementById('dropZone'),
@@ -423,7 +534,6 @@ Under the NDA agreement</textarea>
         fmtJpgBtn: document.getElementById('fmtJpgBtn'),
         fmtPngBtn: document.getElementById('fmtPngBtn'),
         exportBtn: document.getElementById('exportBtn'),
-        exportMainBtn: document.getElementById('exportMainBtn'),
         loadSampleBtn: document.getElementById('loadSampleBtn'),
         resetStyleBtn: document.getElementById('resetStyleBtn'),
         iosTipBtn: document.getElementById('iosTipBtn'),
@@ -450,7 +560,6 @@ Under the NDA agreement</textarea>
         els.loadingText.textContent = text;
         els.loadingOverlay.classList.toggle('hidden', !show);
         els.exportBtn.disabled = show;
-        els.exportMainBtn.disabled = show;
       }
 
       // Build built-in sample card so the app opens rich & immediately usable
@@ -475,9 +584,10 @@ Under the NDA agreement</textarea>
         // Header bar
         ctx.fillStyle = '#0F172A';
         roundRect(ctx, 70, 70, w - 140, 96, { tl: 28, tr: 28, bl: 0, br: 0 }, true, false);
+        const isEn = state.lang === 'en';
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
-        ctx.fillText('範例文件・證件與合約預覽', 115, 130);
+        ctx.fillText(isEn ? 'Sample Document · ID & Contract Preview' : '範例文件・證件與合約預覽', 115, 130);
 
         // Avatar box
         ctx.fillStyle = '#E2E8F0';
@@ -493,11 +603,11 @@ Under the NDA agreement</textarea>
         // Placeholder text lines
         ctx.fillStyle = '#334155';
         ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
-        ctx.fillText('文件類型：身分證明 / 合約影本', 365, 255);
+        ctx.fillText(isEn ? 'Document Type: ID / Contract Copy' : '文件類型：身分證明 / 合約影本', 365, 255);
         ctx.fillStyle = '#64748B';
         ctx.font = '24px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
-        ctx.fillText('說明：請點擊上方「選擇檔案」上傳您的照片或 PDF', 365, 315);
-        ctx.fillText('調整右側控制項即可即時預覽浮水印效果', 365, 360);
+        ctx.fillText(isEn ? 'Tap "Choose File" above to upload a photo or PDF' : '說明：請點擊上方「選擇檔案」上傳您的照片或 PDF', 365, 315);
+        ctx.fillText(isEn ? 'Adjust controls below for live watermark preview' : '調整下方控制項即可即時預覽浮水印效果', 365, 360);
 
         // Decorative lines
         ctx.fillStyle = '#E2E8F0';
@@ -508,10 +618,11 @@ Under the NDA agreement</textarea>
         roundRect(ctx, 115, 615, 620, 18, 9, true, false);
 
         state.fileType = 'sample';
-        state.fileName = '身分證件影本範例.png';
-        els.fileTypeBadge.textContent = '範例文件';
-        els.fileNameLabel.textContent = state.fileName;
-        els.dimensionInfo.textContent = `尺寸：${w} × ${h} px`;
+        state.fileName = isEn ? 'sample-document.png' : '身分證件影本範例.png';
+        els.fileTypeBadge.textContent = I18N[state.lang].badgeSample;
+        els.fileNameLabel.textContent = '';
+        els.fileNameLabel.classList.add('hidden');
+        els.dimensionInfo.textContent = I18N[state.lang].dimSize(w, h);
         els.pdfPageControls.classList.add('hidden');
         els.pdfPageControls.classList.remove('flex');
         els.photoFormatWrap.classList.remove('hidden');
@@ -637,7 +748,7 @@ Under the NDA agreement</textarea>
           els.pageIndicator.textContent = `${pageNum} / ${state.pdfNumPages}`;
           els.prevPageBtn.disabled = pageNum <= 1;
           els.nextPageBtn.disabled = pageNum >= state.pdfNumPages;
-          els.dimensionInfo.textContent = `PDF 預覽：第 ${pageNum} 頁（共 ${state.pdfNumPages} 頁）`;
+          els.dimensionInfo.textContent = I18N[state.lang].dimPdf(pageNum, state.pdfNumPages);
           renderPreview();
         } catch (err) {
           showToast('PDF 頁面渲染失敗');
@@ -659,6 +770,7 @@ Under the NDA agreement</textarea>
 
         state.fileName = file.name;
         els.fileNameLabel.textContent = file.name;
+        els.fileNameLabel.classList.remove('hidden');
 
         if (isImage) {
           setLoading(true, '載入照片中...');
@@ -686,8 +798,8 @@ Under the NDA agreement</textarea>
             const ctx = c.getContext('2d');
             ctx.drawImage(img, 0, 0, c.width, c.height);
 
-            els.fileTypeBadge.textContent = '照片';
-            els.dimensionInfo.textContent = `尺寸：${c.width} × ${c.height} px`;
+            els.fileTypeBadge.textContent = I18N[state.lang].badgeImage;
+            els.dimensionInfo.textContent = I18N[state.lang].dimSize(c.width, c.height);
             els.pdfPageControls.classList.add('hidden');
             els.pdfPageControls.classList.remove('flex');
             els.photoFormatWrap.classList.remove('hidden');
@@ -713,7 +825,7 @@ Under the NDA agreement</textarea>
             state.pdfNumPages = pdfDoc.numPages;
             state.pdfPageNum = 1;
 
-            els.fileTypeBadge.textContent = 'PDF';
+            els.fileTypeBadge.textContent = I18N[state.lang].badgePdf;
             els.pdfPageControls.classList.remove('hidden');
             els.pdfPageControls.classList.add('flex');
             els.photoFormatWrap.classList.add('hidden');
@@ -922,6 +1034,70 @@ Under the NDA agreement</textarea>
         renderPreview();
       });
 
+      function applyLanguage() {
+        const L = I18N[state.lang];
+        document.documentElement.lang = state.lang === 'zh' ? 'zh-Hant' : 'en';
+        els.langToggleBtn.textContent = L.toggleBtn;
+        document.getElementById('headerSubtitle').textContent = L.subtitle;
+        document.getElementById('chooseFileText').textContent = L.chooseFile;
+        document.getElementById('exportBtnText').textContent = L.exportBtn;
+        els.loadSampleBtn.textContent = L.resetSample;
+        els.iosTipBtn.textContent = L.iosTip;
+        document.getElementById('wmContentTitle').textContent = L.wmContentTitle;
+        document.getElementById('wmContentHint').textContent = L.wmContentHint;
+        els.wmText.placeholder = L.wmPlaceholder;
+        els.ndaPresetBtn.textContent = L.ndaPreset;
+        const idBtn = document.getElementById('presetIdBtn');
+        const confBtn = document.getElementById('presetConfBtn');
+        idBtn.textContent = L.presetIdLabel;
+        idBtn.dataset.preset = L.presetIdText;
+        confBtn.textContent = L.presetConfLabel;
+        confBtn.dataset.preset = L.presetConfText;
+        document.getElementById('layoutSectionTitle').textContent = L.layoutTitle;
+        els.modeTileBtn.textContent = L.modeTile;
+        els.modeSingleBtn.textContent = L.modeSingle;
+        document.getElementById('overallScaleLabel').textContent = L.overallScaleLabel;
+        document.getElementById('overallScaleHint').textContent = L.overallScaleHint;
+        document.getElementById('spacingLabel').textContent = L.spacingLabel;
+        document.getElementById('styleSectionTitle').textContent = L.styleTitle;
+        els.resetStyleBtn.textContent = L.resetStyle;
+        document.getElementById('fontSizeLabel').textContent = L.fontSizeLabel;
+        els.boldToggleBtn.textContent = L.boldBtn;
+        document.getElementById('angleLabel').textContent = L.angleLabel;
+        document.getElementById('opacityLabel').textContent = L.opacityLabel;
+        document.getElementById('colorLabel').textContent = L.colorLabel;
+        document.getElementById('photoFormatLabel').textContent = L.photoFormatLabel;
+        els.fmtJpgBtn.textContent = L.fmtJpg;
+        els.fmtPngBtn.textContent = L.fmtPng;
+        document.getElementById('modalTitle').textContent = L.modalTitle;
+        document.getElementById('modalTip1Title').textContent = L.modalTip1Title;
+        document.getElementById('modalTip1Body').textContent = L.modalTip1Body;
+        document.getElementById('modalTip2Title').textContent = L.modalTip2Title;
+        document.getElementById('modalTip2Body').textContent = L.modalTip2Body;
+        document.getElementById('modalTip3Title').textContent = L.modalTip3Title;
+        document.getElementById('modalTip3Body').textContent = L.modalTip3Body;
+        els.confirmModalBtn.textContent = L.modalConfirm;
+
+        if (state.fileType === 'sample') {
+          buildSampleBaseCanvas();
+          els.fileTypeBadge.textContent = L.badgeSample;
+          els.dimensionInfo.textContent = L.dimSize(state.baseCanvas.width, state.baseCanvas.height);
+        } else if (state.fileType === 'image') {
+          els.fileTypeBadge.textContent = L.badgeImage;
+          els.dimensionInfo.textContent = L.dimSize(state.baseCanvas.width, state.baseCanvas.height);
+        } else if (state.fileType === 'pdf') {
+          els.fileTypeBadge.textContent = L.badgePdf;
+          els.dimensionInfo.textContent = L.dimPdf(state.pdfPageNum, state.pdfNumPages);
+        }
+      }
+
+      els.langToggleBtn.addEventListener('click', () => {
+        state.lang = state.lang === 'zh' ? 'en' : 'zh';
+        try { localStorage.setItem('kwatermark_lang', state.lang); } catch (e) {}
+        applyLanguage();
+        showToast(I18N[state.lang].toastLang);
+      });
+
       document.querySelectorAll('.preset-chip').forEach((btn) => {
         btn.addEventListener('click', () => {
           state.watermark.text = btn.dataset.preset;
@@ -1049,7 +1225,6 @@ Under the NDA agreement</textarea>
       });
 
       els.exportBtn.addEventListener('click', exportResult);
-      els.exportMainBtn.addEventListener('click', exportResult);
 
       // Modal controls
       els.iosTipBtn.addEventListener('click', () => els.iosTipModal.classList.remove('hidden'));
@@ -1078,6 +1253,7 @@ Under the NDA agreement</textarea>
       // Initialize
       syncControlsUI();
       buildSampleBaseCanvas();
+      applyLanguage();
 
       // Register Service Worker for offline PWA support
       if ('serviceWorker' in navigator) {
