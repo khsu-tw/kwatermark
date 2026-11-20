@@ -1,6 +1,6 @@
 {
-  "name": "浮水印工作室",
-  "short_name": "浮水印",
+  "name": "KWatermark",
+  "short_name": "KWatermark",
   "description": "本機端照片與 PDF 浮水印工具，支援離線使用",
   "start_url": "./",
   "scope": "./",
