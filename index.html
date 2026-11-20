@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="浮水印工作室" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <meta name="theme-color" content="#007AFF" />
+  <title>iOS 照片與 PDF 浮水印工具</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+
+    :root {
+      --ios-blue: #007AFF;
+      --ios-bg: #F2F2F7;
+      --ios-card: #FFFFFF;
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Noto Sans TC', 'PingFang TC', sans-serif;
+      background-color: var(--ios-bg);
+      color: #1C1C1E;
+      margin: 0;
+      padding-bottom: env(safe-area-inset-bottom, 24px);
+    }
+
+    /* Custom iOS-like range slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #E5E5EA;
+      border-radius: 999px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 0.5px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+    }
+
+    .checkerboard {
+      background-color: #E5E7EB;
+      background-image:
+        linear-gradient(45deg, #F3F4F6 25%, transparent 25%),
+        linear-gradient(-45deg, #F3F4F6 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #F3F4F6 75%),
+        linear-gradient(-45deg, transparent 75%, #F3F4F6 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-gray-200/80">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <div class="truncate">
+          <h1 class="text-base font-semibold tracking-tight text-gray-900 truncate">浮水印工作室</h1>
+          <p class="text-[11px] text-gray-500 truncate">本機處理不上傳・支援照片與 PDF</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <label for="fileInput" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-800 text-xs font-medium transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          <span>選擇檔案</span>
+        </label>
+        <button id="exportBtn" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#007AFF] hover:bg-[#0066D6] active:scale-95 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span id="exportBtnText">匯出成品</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <input id="fileInput" type="file" accept="image/*,application/pdf" class="hidden" />
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-3 sm:px-5 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+
+    <!-- Left / Top: Live Preview Card -->
+    <section class="lg:col-span-7 lg:sticky lg:top-18 bg-white rounded-2xl shadow-sm border border-gray-200/70 overflow-hidden">
+      <div class="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="fileTypeBadge" class="px-2 py-0.5 rounded-md bg-blue-50 text-[#007AFF] text-[11px] font-semibold shrink-0">範例文件</span>
+          <span id="fileNameLabel" class="text-xs text-gray-600 truncate">身分證件影本範例.png</span>
+        </div>
+        <div id="pdfPageControls" class="hidden items-center gap-1.5 shrink-0">
+          <button id="prevPageBtn" type="button" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 disabled:opacity-35" aria-label="上一頁">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <span id="pageIndicator" class="text-xs font-medium text-gray-700 min-w-[46px] text-center">1 / 1</span>
+          <button id="nextPageBtn" type="button" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-700 disabled:opacity-35" aria-label="下一頁">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Canvas Preview Viewport -->
+      <div id="dropZone" class="checkerboard relative flex items-center justify-center p-3 sm:p-5 min-h-[280px] sm:min-h-[380px] max-h-[60vh] lg:max-h-[72vh] overflow-hidden">
+        <canvas id="previewCanvas" class="max-w-full max-h-[54vh] lg:max-h-[66vh] w-auto h-auto rounded-lg shadow-md bg-white"></canvas>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
+          <div class="w-8 h-8 border-[3px] border-[#007AFF] border-t-transparent rounded-full animate-spin"></div>
+          <p id="loadingText" class="text-xs font-medium text-gray-700">處理中...</p>
+        </div>
+      </div>
+
+      <!-- Bottom Quick Upload / Info Bar -->
+      <div class="px-4 py-2.5 bg-gray-50/80 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-500">
+        <span id="dimensionInfo">尺寸：1200 × 800 px</span>
+        <div class="flex items-center gap-3">
+          <button id="loadSampleBtn" type="button" class="text-[#007AFF] font-medium hover:underline">重設為範例</button>
+          <button id="iosTipBtn" type="button" class="text-gray-600 font-medium hover:underline">iPhone 使用小技巧</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right / Bottom: Controls Panel -->
+    <section class="lg:col-span-5 space-y-3">
+
+      <!-- 1. Watermark Content -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <label for="wmText" class="text-sm font-semibold text-gray-900">浮水印內容</label>
+          <span class="text-[11px] text-gray-400">支援換行</span>
+        </div>
+        <textarea id="wmText" rows="2" placeholder="請輸入浮水印文字..." class="w-full rounded-xl border border-gray-200 bg-gray-50/70 px-3 py-2 text-sm text-gray-900 focus:bg-white focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 outline-none transition resize-none">僅供身分驗證使用
+請勿轉作其他用途</textarea>
+
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          <button type="button" data-preset="僅供身分驗證使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">身分驗證</button>
+          <button type="button" data-preset="機密文件 請勿外流" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">機密文件</button>
+          <button type="button" data-preset="僅供租屋簽約使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">租屋專用</button>
+          <button type="button" data-preset="僅供銀行開戶申辦使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">銀行開戶</button>
+          <button type="button" data-preset="© 版權所有 翻印必究" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">版權聲明</button>
+        </div>
+      </div>
+
+      <!-- 2. Layout & Scale -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-semibold text-gray-900">版面與縮放</span>
+          <div class="inline-flex rounded-lg bg-gray-100 p-0.5">
+            <button id="modeTileBtn" type="button" class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition">滿版平鋪</button>
+            <button id="modeSingleBtn" type="button" class="px-3 py-1 rounded-md text-xs font-medium text-gray-600 transition">單一置中</button>
+          </div>
+        </div>
+
+        <!-- Overall Scale Ratio -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium text-gray-700">整體佔版面縮放比例</span>
+            <span id="overallScaleVal" class="font-semibold text-[#007AFF] tabular-nums">100%</span>
+          </div>
+          <input id="overallScaleInput" type="range" min="25" max="200" step="5" value="100" />
+          <p class="text-[11px] text-gray-400">等比例放大或縮小浮水印在整體版面上的視覺佔比</p>
+        </div>
+
+        <!-- Tile Spacing (only shown in Tile mode) -->
+        <div id="spacingControlWrap" class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium text-gray-700">平鋪間距密度</span>
+            <span id="spacingVal" class="font-semibold text-[#007AFF] tabular-nums">100%</span>
+          </div>
+          <input id="spacingInput" type="range" min="50" max="220" step="5" value="100" />
+        </div>
+      </div>
+
+      <!-- 3. Typography, Angle, Color & Opacity -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-semibold text-gray-900">樣式微調</span>
+          <button id="resetStyleBtn" type="button" class="text-xs text-[#007AFF] font-medium hover:underline">重設預設值</button>
+        </div>
+
+        <!-- Font Size & Weight -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium text-gray-700">字體大小</span>
+            <div class="flex items-center gap-2">
+              <button id="boldToggleBtn" type="button" class="px-2 py-0.5 rounded border border-[#007AFF] bg-blue-50 text-[#007AFF] text-[11px] font-bold transition">粗體 B</button>
+              <span id="fontSizeVal" class="font-semibold text-[#007AFF] tabular-nums w-10 text-right">34 pt</span>
+            </div>
+          </div>
+          <input id="fontSizeInput" type="range" min="12" max="110" step="1" value="34" />
+        </div>
+
+        <!-- Angle -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium text-gray-700">旋轉角度</span>
+            <span id="angleVal" class="font-semibold text-[#007AFF] tabular-nums">-30°</span>
+          </div>
+          <input id="angleInput" type="range" min="-180" max="180" step="1" value="-30" />
+          <div class="flex items-center gap-1.5">
+            <button type="button" data-angle="-45" class="angle-chip flex-1 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">-45°</button>
+            <button type="button" data-angle="-30" class="angle-chip flex-1 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">-30°</button>
+            <button type="button" data-angle="0" class="angle-chip flex-1 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">0°</button>
+            <button type="button" data-angle="30" class="angle-chip flex-1 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">+30°</button>
+            <button type="button" data-angle="45" class="angle-chip flex-1 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">+45°</button>
+          </div>
+        </div>
+
+        <!-- Opacity -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium text-gray-700">透明度</span>
+            <span id="opacityVal" class="font-semibold text-[#007AFF] tabular-nums">30%</span>
+          </div>
+          <input id="opacityInput" type="range" min="5" max="100" step="1" value="30" />
+        </div>
+
+        <!-- Color -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium text-gray-700">字型顏色</span>
+            <span id="colorHexLabel" class="font-mono text-[11px] text-gray-500 uppercase">#1E293B</span>
+          </div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <button type="button" data-color="#1E293B" class="color-swatch w-7 h-7 rounded-full bg-[#1E293B] ring-2 ring-offset-2 ring-[#007AFF] transition" aria-label="深灰"></button>
+            <button type="button" data-color="#000000" class="color-swatch w-7 h-7 rounded-full bg-[#000000] ring-1 ring-gray-300 transition" aria-label="純黑"></button>
+            <button type="button" data-color="#FFFFFF" class="color-swatch w-7 h-7 rounded-full bg-[#FFFFFF] ring-1 ring-gray-300 transition" aria-label="純白"></button>
+            <button type="button" data-color="#DC2626" class="color-swatch w-7 h-7 rounded-full bg-[#DC2626] ring-1 ring-gray-300 transition" aria-label="紅色"></button>
+            <button type="button" data-color="#007AFF" class="color-swatch w-7 h-7 rounded-full bg-[#007AFF] ring-1 ring-gray-300 transition" aria-label="藍色"></button>
+            <button type="button" data-color="#D97706" class="color-swatch w-7 h-7 rounded-full bg-[#D97706] ring-1 ring-gray-300 transition" aria-label="琥珀色"></button>
+            <label class="relative w-7 h-7 rounded-full overflow-hidden ring-1 ring-gray-300 cursor-pointer flex items-center justify-center bg-gradient-to-tr from-pink-500 via-purple-500 to-cyan-400" title="自訂顏色">
+              <input id="colorPicker" type="color" value="#1E293B" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Export Options -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-3">
+        <div id="photoFormatWrap" class="flex items-center justify-between">
+          <span class="text-xs font-medium text-gray-700">照片輸出格式</span>
+          <div class="inline-flex rounded-lg bg-gray-100 p-0.5">
+            <button id="fmtJpgBtn" type="button" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition">JPG (檔案較小)</button>
+            <button id="fmtPngBtn" type="button" class="px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 transition">PNG (無損)</button>
+          </div>
+        </div>
+        <button id="exportMainBtn" type="button" class="w-full py-3 rounded-xl bg-[#007AFF] hover:bg-[#0066D6] active:scale-[0.99] text-white font-semibold text-sm shadow-sm transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          <span id="exportMainText">儲存 / 分享加浮水印後的成品</span>
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-200 translate-y-2">
+    <div id="toastInner" class="px-4 py-2.5 rounded-full bg-gray-900/90 text-white text-xs font-medium shadow-lg backdrop-blur-md whitespace-nowrap"></div>
+  </div>
+
+  <!-- iPhone Tips Modal -->
+  <div id="iosTipModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold text-gray-900">iPhone / iOS 使用說明</h2>
+        <button id="closeModalBtn" type="button" class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">✕</button>
+      </div>
+      <div class="space-y-3 text-xs text-gray-600 leading-relaxed">
+        <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-100">
+          <p class="font-semibold text-gray-900 mb-1">1. 匯出到「照片」或「檔案」</p>
+          <p>在 iPhone Safari 點擊「匯出成品」後，會叫出 iOS 原生分享選單：照片可選擇「儲存影像」直接存入相簿；PDF 可選擇「儲存到檔案」。</p>
+        </div>
+        <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+          <p class="font-semibold text-gray-900 mb-1">2. 加到主畫面像 App 一樣使用</p>
+          <p>在 Safari 下方點選「分享」圖示 → 選擇「加入主畫面」，之後就能從桌面直接開啟。</p>
+        </div>
+        <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+          <p class="font-semibold text-gray-900 mb-1">3. 隱私安全</p>
+          <p>所有照片與 PDF 均在您的 iPhone 瀏覽器本機端運算，不會上傳至任何伺服器。</p>
+        </div>
+      </div>
+      <button id="confirmModalBtn" type="button" class="w-full py-2.5 rounded-xl bg-[#007AFF] text-white text-sm font-semibold">我知道了</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Configure PDF.js worker
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+
+      // App State
+      const state = {
+        fileType: 'sample', // 'sample' | 'image' | 'pdf'
+        fileName: '身分證件影本範例.png',
+        imageObj: null,
+        pdfBytes: null,
+        pdfDocJs: null,
+        pdfPageNum: 1,
+        pdfNumPages: 1,
+        baseCanvas: document.createElement('canvas'),
+        photoFormat: 'jpg', // 'jpg' | 'png'
+        watermark: {
+          text: '僅供身分驗證使用\n請勿轉作其他用途',
+          mode: 'tile', // 'tile' | 'single'
+          overallScale: 100, // 25 - 200 (%)
+          spacing: 100, // 50 - 220 (%)
+          fontSize: 34, // 12 - 110 (relative to 1000px base)
+          bold: true,
+          angle: -30, // -180 to 180
+          opacity: 30, // 5 to 100 (%)
+          color: '#1E293B'
+        }
+      };
+
+      // DOM Elements
+      const els = {
+        fileInput: document.getElementById('fileInput'),
+        previewCanvas: document.getElementById('previewCanvas'),
+        dropZone: document.getElementById('dropZone'),
+        loadingOverlay: document.getElementById('loadingOverlay'),
+        loadingText: document.getElementById('loadingText'),
+        fileTypeBadge: document.getElementById('fileTypeBadge'),
+        fileNameLabel: document.getElementById('fileNameLabel'),
+        dimensionInfo: document.getElementById('dimensionInfo'),
+        pdfPageControls: document.getElementById('pdfPageControls'),
+        prevPageBtn: document.getElementById('prevPageBtn'),
+        nextPageBtn: document.getElementById('nextPageBtn'),
+        pageIndicator: document.getElementById('pageIndicator'),
+        wmText: document.getElementById('wmText'),
+        modeTileBtn: document.getElementById('modeTileBtn'),
+        modeSingleBtn: document.getElementById('modeSingleBtn'),
+        spacingControlWrap: document.getElementById('spacingControlWrap'),
+        overallScaleInput: document.getElementById('overallScaleInput'),
+        overallScaleVal: document.getElementById('overallScaleVal'),
+        spacingInput: document.getElementById('spacingInput'),
+        spacingVal: document.getElementById('spacingVal'),
+        fontSizeInput: document.getElementById('fontSizeInput'),
+        fontSizeVal: document.getElementById('fontSizeVal'),
+        boldToggleBtn: document.getElementById('boldToggleBtn'),
+        angleInput: document.getElementById('angleInput'),
+        angleVal: document.getElementById('angleVal'),
+        opacityInput: document.getElementById('opacityInput'),
+        opacityVal: document.getElementById('opacityVal'),
+        colorPicker: document.getElementById('colorPicker'),
+        colorHexLabel: document.getElementById('colorHexLabel'),
+        photoFormatWrap: document.getElementById('photoFormatWrap'),
+        fmtJpgBtn: document.getElementById('fmtJpgBtn'),
+        fmtPngBtn: document.getElementById('fmtPngBtn'),
+        exportBtn: document.getElementById('exportBtn'),
+        exportMainBtn: document.getElementById('exportMainBtn'),
+        loadSampleBtn: document.getElementById('loadSampleBtn'),
+        resetStyleBtn: document.getElementById('resetStyleBtn'),
+        iosTipBtn: document.getElementById('iosTipBtn'),
+        iosTipModal: document.getElementById('iosTipModal'),
+        closeModalBtn: document.getElementById('closeModalBtn'),
+        confirmModalBtn: document.getElementById('confirmModalBtn'),
+        toast: document.getElementById('toast'),
+        toastInner: document.getElementById('toastInner')
+      };
+
+      let toastTimer = null;
+      function showToast(msg) {
+        els.toastInner.textContent = msg;
+        els.toast.classList.remove('opacity-0', 'translate-y-2');
+        els.toast.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          els.toast.classList.add('opacity-0', 'translate-y-2');
+          els.toast.classList.remove('opacity-100', 'translate-y-0');
+        }, 2600);
+      }
+
+      function setLoading(show, text = '處理中...') {
+        els.loadingText.textContent = text;
+        els.loadingOverlay.classList.toggle('hidden', !show);
+        els.exportBtn.disabled = show;
+        els.exportMainBtn.disabled = show;
+      }
+
+      // Build built-in sample card so the app opens rich & immediately usable
+      function buildSampleBaseCanvas() {
+        const w = 1200;
+        const h = 800;
+        const c = state.baseCanvas;
+        c.width = w;
+        c.height = h;
+        const ctx = c.getContext('2d');
+
+        // Soft paper background
+        ctx.fillStyle = '#F8FAFC';
+        ctx.fillRect(0, 0, w, h);
+
+        // Outer card
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#CBD5E1';
+        ctx.lineWidth = 3;
+        roundRect(ctx, 70, 70, w - 140, h - 140, 28, true, true);
+
+        // Header bar
+        ctx.fillStyle = '#0F172A';
+        roundRect(ctx, 70, 70, w - 140, 96, { tl: 28, tr: 28, bl: 0, br: 0 }, true, false);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 34px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
+        ctx.fillText('範例文件・證件與合約預覽', 115, 130);
+
+        // Avatar box
+        ctx.fillStyle = '#E2E8F0';
+        roundRect(ctx, 115, 215, 210, 260, 16, true, false);
+        ctx.fillStyle = '#94A3B8';
+        ctx.beginPath();
+        ctx.arc(220, 310, 48, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(220, 445, 76, Math.PI, 0);
+        ctx.fill();
+
+        // Placeholder text lines
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 30px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
+        ctx.fillText('文件類型：身分證明 / 合約影本', 365, 255);
+        ctx.fillStyle = '#64748B';
+        ctx.font = '24px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
+        ctx.fillText('說明：請點擊上方「選擇檔案」上傳您的照片或 PDF', 365, 315);
+        ctx.fillText('調整右側控制項即可即時預覽浮水印效果', 365, 360);
+
+        // Decorative lines
+        ctx.fillStyle = '#E2E8F0';
+        roundRect(ctx, 365, 415, 640, 18, 9, true, false);
+        roundRect(ctx, 365, 455, 500, 18, 9, true, false);
+        roundRect(ctx, 115, 535, 900, 18, 9, true, false);
+        roundRect(ctx, 115, 575, 760, 18, 9, true, false);
+        roundRect(ctx, 115, 615, 620, 18, 9, true, false);
+
+        state.fileType = 'sample';
+        state.fileName = '身分證件影本範例.png';
+        els.fileTypeBadge.textContent = '範例文件';
+        els.fileNameLabel.textContent = state.fileName;
+        els.dimensionInfo.textContent = `尺寸：${w} × ${h} px`;
+        els.pdfPageControls.classList.add('hidden');
+        els.pdfPageControls.classList.remove('flex');
+        els.photoFormatWrap.classList.remove('hidden');
+        renderPreview();
+      }
+
+      function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+        let r = typeof radius === 'number'
+          ? { tl: radius, tr: radius, br: radius, bl: radius }
+          : radius;
+        ctx.beginPath();
+        ctx.moveTo(x + r.tl, y);
+        ctx.lineTo(x + width - r.tr, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + r.tr);
+        ctx.lineTo(x + width, y + height - r.br);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - r.br, y + height);
+        ctx.lineTo(x + r.bl, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - r.bl);
+        ctx.lineTo(x, y + r.tl);
+        ctx.quadraticCurveTo(x, y, x + r.tl, y);
+        ctx.closePath();
+        if (fill) ctx.fill();
+        if (stroke) ctx.stroke();
+      }
+
+      // Draw watermark layer onto any canvas context of size (w, h)
+      function drawWatermarkLayer(ctx, w, h, wm) {
+        const rawText = (wm.text || '').trim();
+        if (!rawText) return;
+
+        const lines = rawText.split(/\r?\n/);
+        // Normalize scale relative to a 1000px reference dimension so fontSize behaves consistently across photos & PDFs
+        const refDim = Math.min(w, h);
+        const overallFactor = wm.overallScale / 100;
+        const baseScale = (refDim / 800) * overallFactor;
+        const fontPx = Math.max(8, wm.fontSize * baseScale);
+        const lineHeight = fontPx * 1.32;
+
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, Math.max(0.05, wm.opacity / 100));
+        ctx.fillStyle = wm.color;
+        ctx.font = `${wm.bold ? '700' : '400'} ${fontPx}px -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Measure max line width
+        let maxLineW = 0;
+        for (const line of lines) {
+          const m = ctx.measureText(line).width;
+          if (m > maxLineW) maxLineW = m;
+        }
+        const blockH = lines.length * lineHeight;
+        const rad = (wm.angle * Math.PI) / 180;
+
+        if (wm.mode === 'single') {
+          ctx.translate(w / 2, h / 2);
+          ctx.rotate(rad);
+          const startY = -((lines.length - 1) * lineHeight) / 2;
+          lines.forEach((line, idx) => {
+            ctx.fillText(line, 0, startY + idx * lineHeight);
+          });
+        } else {
+          // Tiled mode covering rotated bounding box
+          const spacingFactor = wm.spacing / 100;
+          const stepX = Math.max(maxLineW + fontPx * 1.4, fontPx * 4) * spacingFactor;
+          const stepY = Math.max(blockH + fontPx * 1.8, fontPx * 3.5) * spacingFactor;
+
+          const diag = Math.hypot(w, h);
+          ctx.translate(w / 2, h / 2);
+          ctx.rotate(rad);
+
+          const half = diag * 0.75;
+          let row = 0;
+          for (let y = -half; y <= half; y += stepY) {
+            const xOffset = (row % 2 === 1) ? stepX * 0.5 : 0;
+            for (let x = -half - stepX; x <= half + stepX; x += stepX) {
+              const startY = y - ((lines.length - 1) * lineHeight) / 2;
+              lines.forEach((line, idx) => {
+                ctx.fillText(line, x + xOffset, startY + idx * lineHeight);
+              });
+            }
+            row++;
+          }
+        }
+        ctx.restore();
+      }
+
+      function renderPreview() {
+        const base = state.baseCanvas;
+        const prev = els.previewCanvas;
+        if (!base.width || !base.height) return;
+
+        // Limit preview canvas resolution for snappy mobile rendering
+        const maxPreviewDim = 1400;
+        const scale = Math.min(1, maxPreviewDim / Math.max(base.width, base.height));
+        const pw = Math.round(base.width * scale);
+        const ph = Math.round(base.height * scale);
+
+        prev.width = pw;
+        prev.height = ph;
+        const ctx = prev.getContext('2d');
+        ctx.clearRect(0, 0, pw, ph);
+        ctx.drawImage(base, 0, 0, pw, ph);
+        drawWatermarkLayer(ctx, pw, ph, state.watermark);
+      }
+
+      // Render a specific PDF page onto state.baseCanvas
+      async function renderPdfPage(pageNum) {
+        if (!state.pdfDocJs) return;
+        setLoading(true, `載入第 ${pageNum} 頁...`);
+        try {
+          const page = await state.pdfDocJs.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 2.0 });
+          const c = state.baseCanvas;
+          c.width = viewport.width;
+          c.height = viewport.height;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, c.width, c.height);
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          state.pdfPageNum = pageNum;
+          els.pageIndicator.textContent = `${pageNum} / ${state.pdfNumPages}`;
+          els.prevPageBtn.disabled = pageNum <= 1;
+          els.nextPageBtn.disabled = pageNum >= state.pdfNumPages;
+          els.dimensionInfo.textContent = `PDF 預覽：第 ${pageNum} 頁（共 ${state.pdfNumPages} 頁）`;
+          renderPreview();
+        } catch (err) {
+          showToast('PDF 頁面渲染失敗');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      // Handle uploaded file (Image or PDF)
+      async function handleFile(file) {
+        if (!file) return;
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(file.name);
+
+        if (!isPdf && !isImage) {
+          showToast('請選擇照片或 PDF 檔案');
+          return;
+        }
+
+        state.fileName = file.name;
+        els.fileNameLabel.textContent = file.name;
+
+        if (isImage) {
+          setLoading(true, '載入照片中...');
+          try {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+              img.onload = resolve;
+              img.onerror = reject;
+              img.src = url;
+            });
+            URL.revokeObjectURL(url);
+
+            state.fileType = 'image';
+            state.imageObj = img;
+            state.pdfBytes = null;
+            state.pdfDocJs = null;
+
+            // Cap extreme 4K+ images slightly only if needed for iOS Safari memory safety (e.g. >4096px)
+            const maxExportDim = 4096;
+            const ratio = Math.min(1, maxExportDim / Math.max(img.naturalWidth, img.naturalHeight));
+            const c = state.baseCanvas;
+            c.width = Math.round(img.naturalWidth * ratio);
+            c.height = Math.round(img.naturalHeight * ratio);
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+
+            els.fileTypeBadge.textContent = '照片';
+            els.dimensionInfo.textContent = `尺寸：${c.width} × ${c.height} px`;
+            els.pdfPageControls.classList.add('hidden');
+            els.pdfPageControls.classList.remove('flex');
+            els.photoFormatWrap.classList.remove('hidden');
+            renderPreview();
+            showToast('已載入照片');
+          } catch (err) {
+            showToast('無法讀取此圖片格式');
+          } finally {
+            setLoading(false);
+          }
+        } else {
+          setLoading(true, '解析 PDF 中...');
+          try {
+            const buf = await file.arrayBuffer();
+            state.pdfBytes = new Uint8Array(buf);
+            if (!window.pdfjsLib) {
+              throw new Error('PDF.js 尚未載入完成');
+            }
+            const loadingTask = window.pdfjsLib.getDocument({ data: state.pdfBytes.slice() });
+            const pdfDoc = await loadingTask.promise;
+            state.fileType = 'pdf';
+            state.pdfDocJs = pdfDoc;
+            state.pdfNumPages = pdfDoc.numPages;
+            state.pdfPageNum = 1;
+
+            els.fileTypeBadge.textContent = 'PDF';
+            els.pdfPageControls.classList.remove('hidden');
+            els.pdfPageControls.classList.add('flex');
+            els.photoFormatWrap.classList.add('hidden');
+            await renderPdfPage(1);
+            showToast(`已載入 PDF（共 ${pdfDoc.numPages} 頁）`);
+          } catch (err) {
+            showToast('PDF 讀取失敗，請確認檔案未加密損毀');
+            setLoading(false);
+          }
+        }
+      }
+
+      // Share or download helper (iOS Safari friendly)
+      async function deliverBlob(blob, filename) {
+        const file = new File([blob], filename, { type: blob.type });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: filename
+            });
+            showToast('已開啟分享 / 儲存選單');
+            return;
+          } catch (err) {
+            if (err && err.name === 'AbortError') return;
+          }
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        showToast('已開始下載成品');
+      }
+
+      // Export final watermarked Photo or PDF
+      async function exportResult() {
+        if (state.fileType === 'pdf' && state.pdfBytes) {
+          if (!window.PDFLib) {
+            showToast('PDF 輸出元件尚未載入，請稍候再試');
+            return;
+          }
+          setLoading(true, '正在產生浮水印 PDF...');
+          try {
+            const pdfDoc = await window.PDFLib.PDFDocument.load(state.pdfBytes);
+            const pages = pdfDoc.getPages();
+
+            // Cache watermark PNGs by page dimensions so identical-sized pages render fast
+            const wmCache = new Map();
+
+            for (let i = 0; i < pages.length; i++) {
+              setLoading(true, `處理第 ${i + 1} / ${pages.length} 頁...`);
+              const page = pages[i];
+              const { width, height } = page.getSize();
+              const key = `${Math.round(width)}x${Math.round(height)}`;
+
+              let embeddedPng = wmCache.get(key);
+              if (!embeddedPng) {
+                const scaleFactor = 2; // 2x DPI for crisp CJK/vector-like watermark text
+                const off = document.createElement('canvas');
+                off.width = Math.max(200, Math.round(width * scaleFactor));
+                off.height = Math.max(200, Math.round(height * scaleFactor));
+                const octx = off.getContext('2d');
+                drawWatermarkLayer(octx, off.width, off.height, state.watermark);
+
+                const pngBlob = await new Promise((res) => off.toBlob(res, 'image/png'));
+                const pngBuf = await pngBlob.arrayBuffer();
+                embeddedPng = await pdfDoc.embedPng(pngBuf);
+                wmCache.set(key, embeddedPng);
+              }
+
+              page.drawImage(embeddedPng, {
+                x: 0,
+                y: 0,
+                width: width,
+                height: height
+              });
+            }
+
+            const outBytes = await pdfDoc.save();
+            const outBlob = new Blob([outBytes], { type: 'application/pdf' });
+            const baseName = state.fileName.replace(/\.pdf$/i, '');
+            await deliverBlob(outBlob, `${baseName}_浮水印.pdf`);
+          } catch (err) {
+            showToast('PDF 匯出失敗，請重試');
+          } finally {
+            setLoading(false);
+          }
+        } else {
+          setLoading(true, '正在合成高畫質照片...');
+          try {
+            const base = state.baseCanvas;
+            const out = document.createElement('canvas');
+            out.width = base.width;
+            out.height = base.height;
+            const ctx = out.getContext('2d');
+            ctx.drawImage(base, 0, 0);
+            drawWatermarkLayer(ctx, out.width, out.height, state.watermark);
+
+            const isPng = state.photoFormat === 'png';
+            const mime = isPng ? 'image/png' : 'image/jpeg';
+            const quality = isPng ? undefined : 0.92;
+            const blob = await new Promise((res) => out.toBlob(res, mime, quality));
+            const baseName = state.fileName.replace(/\.[^.]+$/, '');
+            const ext = isPng ? 'png' : 'jpg';
+            await deliverBlob(blob, `${baseName}_浮水印.${ext}`);
+          } catch (err) {
+            showToast('照片匯出失敗');
+          } finally {
+            setLoading(false);
+          }
+        }
+      }
+
+      // Sync UI controls with state
+      function syncControlsUI() {
+        const wm = state.watermark;
+        els.wmText.value = wm.text;
+        els.overallScaleInput.value = wm.overallScale;
+        els.overallScaleVal.textContent = `${wm.overallScale}%`;
+        els.spacingInput.value = wm.spacing;
+        els.spacingVal.textContent = `${wm.spacing}%`;
+        els.fontSizeInput.value = wm.fontSize;
+        els.fontSizeVal.textContent = `${wm.fontSize} pt`;
+        els.angleInput.value = wm.angle;
+        els.angleVal.textContent = `${wm.angle}°`;
+        els.opacityInput.value = wm.opacity;
+        els.opacityVal.textContent = `${wm.opacity}%`;
+        els.colorPicker.value = wm.color;
+        els.colorHexLabel.textContent = wm.color.toUpperCase();
+
+        // Bold toggle
+        if (wm.bold) {
+          els.boldToggleBtn.className = 'px-2 py-0.5 rounded border border-[#007AFF] bg-blue-50 text-[#007AFF] text-[11px] font-bold transition';
+        } else {
+          els.boldToggleBtn.className = 'px-2 py-0.5 rounded border border-gray-300 bg-white text-gray-600 text-[11px] font-normal transition';
+        }
+
+        // Mode buttons
+        const isTile = wm.mode === 'tile';
+        els.modeTileBtn.className = isTile
+          ? 'px-3 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition'
+          : 'px-3 py-1 rounded-md text-xs font-medium text-gray-600 transition';
+        els.modeSingleBtn.className = !isTile
+          ? 'px-3 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition'
+          : 'px-3 py-1 rounded-md text-xs font-medium text-gray-600 transition';
+        els.spacingControlWrap.classList.toggle('hidden', !isTile);
+
+        // Swatches highlight
+        document.querySelectorAll('.color-swatch').forEach((btn) => {
+          const active = btn.dataset.color.toUpperCase() === wm.color.toUpperCase();
+          btn.classList.toggle('ring-2', active);
+          btn.classList.toggle('ring-offset-2', active);
+          btn.classList.toggle('ring-[#007AFF]', active);
+          btn.classList.toggle('ring-1', !active);
+          btn.classList.toggle('ring-gray-300', !active);
+        });
+      }
+
+      // Event Bindings
+      els.fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleFile(e.target.files[0]);
+          e.target.value = '';
+        }
+      });
+
+      els.wmText.addEventListener('input', (e) => {
+        state.watermark.text = e.target.value;
+        renderPreview();
+      });
+
+      document.querySelectorAll('.preset-chip').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.watermark.text = btn.dataset.preset;
+          els.wmText.value = btn.dataset.preset;
+          renderPreview();
+        });
+      });
+
+      els.modeTileBtn.addEventListener('click', () => {
+        state.watermark.mode = 'tile';
+        syncControlsUI();
+        renderPreview();
+      });
+
+      els.modeSingleBtn.addEventListener('click', () => {
+        state.watermark.mode = 'single';
+        syncControlsUI();
+        renderPreview();
+      });
+
+      els.overallScaleInput.addEventListener('input', (e) => {
+        state.watermark.overallScale = Number(e.target.value);
+        els.overallScaleVal.textContent = `${state.watermark.overallScale}%`;
+        renderPreview();
+      });
+
+      els.spacingInput.addEventListener('input', (e) => {
+        state.watermark.spacing = Number(e.target.value);
+        els.spacingVal.textContent = `${state.watermark.spacing}%`;
+        renderPreview();
+      });
+
+      els.fontSizeInput.addEventListener('input', (e) => {
+        state.watermark.fontSize = Number(e.target.value);
+        els.fontSizeVal.textContent = `${state.watermark.fontSize} pt`;
+        renderPreview();
+      });
+
+      els.boldToggleBtn.addEventListener('click', () => {
+        state.watermark.bold = !state.watermark.bold;
+        syncControlsUI();
+        renderPreview();
+      });
+
+      els.angleInput.addEventListener('input', (e) => {
+        state.watermark.angle = Number(e.target.value);
+        els.angleVal.textContent = `${state.watermark.angle}°`;
+        renderPreview();
+      });
+
+      document.querySelectorAll('.angle-chip').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.watermark.angle = Number(btn.dataset.angle);
+          els.angleInput.value = state.watermark.angle;
+          els.angleVal.textContent = `${state.watermark.angle}°`;
+          renderPreview();
+        });
+      });
+
+      els.opacityInput.addEventListener('input', (e) => {
+        state.watermark.opacity = Number(e.target.value);
+        els.opacityVal.textContent = `${state.watermark.opacity}%`;
+        renderPreview();
+      });
+
+      document.querySelectorAll('.color-swatch').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.watermark.color = btn.dataset.color;
+          syncControlsUI();
+          renderPreview();
+        });
+      });
+
+      els.colorPicker.addEventListener('input', (e) => {
+        state.watermark.color = e.target.value;
+        syncControlsUI();
+        renderPreview();
+      });
+
+      els.fmtJpgBtn.addEventListener('click', () => {
+        state.photoFormat = 'jpg';
+        els.fmtJpgBtn.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition';
+        els.fmtPngBtn.className = 'px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 transition';
+      });
+
+      els.fmtPngBtn.addEventListener('click', () => {
+        state.photoFormat = 'png';
+        els.fmtPngBtn.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-gray-900 shadow-sm transition';
+        els.fmtJpgBtn.className = 'px-2.5 py-1 rounded-md text-xs font-medium text-gray-600 transition';
+      });
+
+      els.prevPageBtn.addEventListener('click', () => {
+        if (state.pdfPageNum > 1) renderPdfPage(state.pdfPageNum - 1);
+      });
+
+      els.nextPageBtn.addEventListener('click', () => {
+        if (state.pdfPageNum < state.pdfNumPages) renderPdfPage(state.pdfPageNum + 1);
+      });
+
+      els.loadSampleBtn.addEventListener('click', () => {
+        state.pdfBytes = null;
+        state.pdfDocJs = null;
+        buildSampleBaseCanvas();
+        showToast('已切換回範例文件');
+      });
+
+      els.resetStyleBtn.addEventListener('click', () => {
+        state.watermark = {
+          text: state.watermark.text,
+          mode: 'tile',
+          overallScale: 100,
+          spacing: 100,
+          fontSize: 34,
+          bold: true,
+          angle: -30,
+          opacity: 30,
+          color: '#1E293B'
+        };
+        syncControlsUI();
+        renderPreview();
+        showToast('已重設浮水印樣式');
+      });
+
+      els.exportBtn.addEventListener('click', exportResult);
+      els.exportMainBtn.addEventListener('click', exportResult);
+
+      // Modal controls
+      els.iosTipBtn.addEventListener('click', () => els.iosTipModal.classList.remove('hidden'));
+      els.closeModalBtn.addEventListener('click', () => els.iosTipModal.classList.add('hidden'));
+      els.confirmModalBtn.addEventListener('click', () => els.iosTipModal.classList.add('hidden'));
+      els.iosTipModal.addEventListener('click', (e) => {
+        if (e.target === els.iosTipModal) els.iosTipModal.classList.add('hidden');
+      });
+
+      // Drag and drop for desktop testing
+      els.dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        els.dropZone.classList.add('ring-2', 'ring-[#007AFF]', 'ring-inset');
+      });
+      els.dropZone.addEventListener('dragleave', () => {
+        els.dropZone.classList.remove('ring-2', 'ring-[#007AFF]', 'ring-inset');
+      });
+      els.dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        els.dropZone.classList.remove('ring-2', 'ring-[#007AFF]', 'ring-inset');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Initialize
+      syncControlsUI();
+      buildSampleBaseCanvas();
+
+      // Register Service Worker for offline PWA support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').then(() => {
+            showToast('已啟用離線快取，沒網路也能使用');
+          }).catch(() => {});
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
