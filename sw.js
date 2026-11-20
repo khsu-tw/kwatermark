@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kwatermark-v2';
+const CACHE_NAME = 'kwatermark-v3';
 const CORE_ASSETS = [
   './',
   './index.html',

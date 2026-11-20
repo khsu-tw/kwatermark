@@ -200,9 +200,6 @@ Under the NDA agreement</textarea>
           <button type="button" id="ndaPresetBtn" class="shrink-0 px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-[11px] font-semibold text-[#007AFF] transition">NDA 範本</button>
           <button type="button" data-preset="僅供身分驗證使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">身分驗證</button>
           <button type="button" data-preset="機密文件 請勿外流" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">機密文件</button>
-          <button type="button" data-preset="僅供租屋簽約使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">租屋專用</button>
-          <button type="button" data-preset="僅供銀行開戶申辦使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">銀行開戶</button>
-          <button type="button" data-preset="© 版權所有 翻印必究" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">版權聲明</button>
         </div>
       </div>
 
@@ -220,9 +217,9 @@ Under the NDA agreement</textarea>
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="font-medium text-gray-700">整體佔版面縮放比例</span>
-            <span id="overallScaleVal" class="font-semibold text-[#007AFF] tabular-nums">100%</span>
+            <span id="overallScaleVal" class="font-semibold text-[#007AFF] tabular-nums">125%</span>
           </div>
-          <input id="overallScaleInput" type="range" min="25" max="200" step="5" value="100" />
+          <input id="overallScaleInput" type="range" min="25" max="200" step="5" value="125" />
           <p class="text-[11px] text-gray-400">等比例放大或縮小浮水印在整體版面上的視覺佔比</p>
         </div>
 
@@ -275,16 +272,16 @@ Under the NDA agreement</textarea>
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="font-medium text-gray-700">透明度</span>
-            <span id="opacityVal" class="font-semibold text-[#007AFF] tabular-nums">30%</span>
+            <span id="opacityVal" class="font-semibold text-[#007AFF] tabular-nums">15%</span>
           </div>
-          <input id="opacityInput" type="range" min="5" max="100" step="1" value="30" />
+          <input id="opacityInput" type="range" min="5" max="100" step="1" value="15" />
         </div>
 
         <!-- Color -->
         <div class="space-y-2">
           <div class="flex items-center justify-between text-xs">
             <span class="font-medium text-gray-700">字型顏色</span>
-            <span id="colorHexLabel" class="font-mono text-[11px] text-gray-500 uppercase">#1E293B</span>
+            <span id="colorHexLabel" class="font-mono text-[11px] text-gray-500 uppercase">#DC2626</span>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
             <button type="button" data-color="#1E293B" class="color-swatch w-7 h-7 rounded-full bg-[#1E293B] ring-2 ring-offset-2 ring-[#007AFF] transition" aria-label="深灰"></button>
@@ -294,7 +291,7 @@ Under the NDA agreement</textarea>
             <button type="button" data-color="#007AFF" class="color-swatch w-7 h-7 rounded-full bg-[#007AFF] ring-1 ring-gray-300 transition" aria-label="藍色"></button>
             <button type="button" data-color="#D97706" class="color-swatch w-7 h-7 rounded-full bg-[#D97706] ring-1 ring-gray-300 transition" aria-label="琥珀色"></button>
             <label class="relative w-7 h-7 rounded-full overflow-hidden ring-1 ring-gray-300 cursor-pointer flex items-center justify-center bg-gradient-to-tr from-pink-500 via-purple-500 to-cyan-400" title="自訂顏色">
-              <input id="colorPicker" type="color" value="#1E293B" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" />
+              <input id="colorPicker" type="color" value="#DC2626" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" />
             </label>
           </div>
         </div>
@@ -376,14 +373,14 @@ Under the NDA agreement</textarea>
           userName: '',
           email: '',
           text: 'Release to [CompanyName]\n[UserName] <email>\nUnder the NDA agreement',
-          mode: 'tile', // 'tile' | 'single'
-          overallScale: 100, // 25 - 200 (%)
+          mode: 'single', // 'tile' | 'single'
+          overallScale: 125, // 25 - 200 (%)
           spacing: 100, // 50 - 220 (%)
           fontSize: 34, // 12 - 110 (relative to 1000px base)
           bold: true,
           angle: -30, // -180 to 180
-          opacity: 30, // 5 to 100 (%)
-          color: '#1E293B'
+          opacity: 15, // 5 to 100 (%)
+          color: '#DC2626'
         }
       };
 
@@ -1037,14 +1034,14 @@ Under the NDA agreement</textarea>
           userName: state.watermark.userName,
           email: state.watermark.email,
           text: state.watermark.text,
-          mode: 'tile',
-          overallScale: 100,
+          mode: 'single',
+          overallScale: 125,
           spacing: 100,
           fontSize: 34,
           bold: true,
           angle: -30,
-          opacity: 30,
-          color: '#1E293B'
+          opacity: 15,
+          color: '#DC2626'
         };
         syncControlsUI();
         renderPreview();
