@@ -1,9 +1,10 @@
-const CACHE_NAME = 'watermark-studio-v1';
+const CACHE_NAME = 'kwatermark-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icon.svg',
+  './apple-touch-icon.png',
+  './icon-512.png',
   'https://cdn.tailwindcss.com/3.4.17',
   'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',

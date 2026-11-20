@@ -7,7 +7,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="KWatermark" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
   <meta name="theme-color" content="#007AFF" />
   <title>KWatermark — iOS 照片與 PDF 浮水印工具</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -173,12 +174,30 @@
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200/70 p-4 space-y-3">
         <div class="flex items-center justify-between">
           <label for="wmText" class="text-sm font-semibold text-gray-900">浮水印內容</label>
-          <span class="text-[11px] text-gray-400">支援換行</span>
+          <span class="text-[11px] text-gray-400">支援欄位自動帶入與手動編輯</span>
         </div>
-        <textarea id="wmText" rows="2" placeholder="請輸入浮水印文字..." class="w-full rounded-xl border border-gray-200 bg-gray-50/70 px-3 py-2 text-sm text-gray-900 focus:bg-white focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 outline-none transition resize-none">僅供身分驗證使用
-請勿轉作其他用途</textarea>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div>
+            <label for="companyInput" class="block text-[11px] font-medium text-gray-600 mb-1">CompanyName</label>
+            <input id="companyInput" type="text" placeholder="CompanyName" class="w-full rounded-lg border border-gray-200 bg-gray-50/70 px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 outline-none transition" />
+          </div>
+          <div>
+            <label for="userInput" class="block text-[11px] font-medium text-gray-600 mb-1">UserName</label>
+            <input id="userInput" type="text" placeholder="UserName" class="w-full rounded-lg border border-gray-200 bg-gray-50/70 px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 outline-none transition" />
+          </div>
+          <div>
+            <label for="emailInput" class="block text-[11px] font-medium text-gray-600 mb-1">email</label>
+            <input id="emailInput" type="email" placeholder="email" class="w-full rounded-lg border border-gray-200 bg-gray-50/70 px-2.5 py-1.5 text-xs text-gray-900 focus:bg-white focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 outline-none transition" />
+          </div>
+        </div>
+
+        <textarea id="wmText" rows="3" placeholder="請輸入浮水印文字..." class="w-full rounded-xl border border-gray-200 bg-gray-50/70 px-3 py-2 text-sm text-gray-900 focus:bg-white focus:border-[#007AFF] focus:ring-2 focus:ring-[#007AFF]/15 outline-none transition resize-none">Release to [CompanyName]
+[UserName] &lt;email&gt;
+Under the NDA agreement</textarea>
 
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          <button type="button" id="ndaPresetBtn" class="shrink-0 px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-[11px] font-semibold text-[#007AFF] transition">NDA 範本</button>
           <button type="button" data-preset="僅供身分驗證使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">身分驗證</button>
           <button type="button" data-preset="機密文件 請勿外流" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">機密文件</button>
           <button type="button" data-preset="僅供租屋簽約使用" class="preset-chip shrink-0 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-gray-200 text-[11px] font-medium text-gray-700 transition">租屋專用</button>
@@ -353,7 +372,10 @@
         baseCanvas: document.createElement('canvas'),
         photoFormat: 'jpg', // 'jpg' | 'png'
         watermark: {
-          text: '僅供身分驗證使用\n請勿轉作其他用途',
+          companyName: '',
+          userName: '',
+          email: '',
+          text: 'Release to [CompanyName]\n[UserName] <email>\nUnder the NDA agreement',
           mode: 'tile', // 'tile' | 'single'
           overallScale: 100, // 25 - 200 (%)
           spacing: 100, // 50 - 220 (%)
@@ -379,6 +401,10 @@
         prevPageBtn: document.getElementById('prevPageBtn'),
         nextPageBtn: document.getElementById('nextPageBtn'),
         pageIndicator: document.getElementById('pageIndicator'),
+        companyInput: document.getElementById('companyInput'),
+        userInput: document.getElementById('userInput'),
+        emailInput: document.getElementById('emailInput'),
+        ndaPresetBtn: document.getElementById('ndaPresetBtn'),
         wmText: document.getElementById('wmText'),
         modeTileBtn: document.getElementById('modeTileBtn'),
         modeSingleBtn: document.getElementById('modeSingleBtn'),
@@ -861,6 +887,39 @@
         }
       });
 
+      function buildNdaText() {
+        const company = (state.watermark.companyName || '').trim() || '[CompanyName]';
+        const user = (state.watermark.userName || '').trim() || '[UserName]';
+        const email = (state.watermark.email || '').trim() || 'email';
+        return `Release to ${company}\n${user} <${email}>\nUnder the NDA agreement`;
+      }
+
+      function applyNdaFields() {
+        const text = buildNdaText();
+        state.watermark.text = text;
+        els.wmText.value = text;
+        renderPreview();
+      }
+
+      els.companyInput.addEventListener('input', (e) => {
+        state.watermark.companyName = e.target.value;
+        applyNdaFields();
+      });
+
+      els.userInput.addEventListener('input', (e) => {
+        state.watermark.userName = e.target.value;
+        applyNdaFields();
+      });
+
+      els.emailInput.addEventListener('input', (e) => {
+        state.watermark.email = e.target.value;
+        applyNdaFields();
+      });
+
+      els.ndaPresetBtn.addEventListener('click', () => {
+        applyNdaFields();
+      });
+
       els.wmText.addEventListener('input', (e) => {
         state.watermark.text = e.target.value;
         renderPreview();
@@ -974,6 +1033,9 @@
 
       els.resetStyleBtn.addEventListener('click', () => {
         state.watermark = {
+          companyName: state.watermark.companyName,
+          userName: state.watermark.userName,
+          email: state.watermark.email,
           text: state.watermark.text,
           mode: 'tile',
           overallScale: 100,
