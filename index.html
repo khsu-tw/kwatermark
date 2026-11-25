@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -95,14 +95,10 @@
   <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-gray-200/80">
     <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2.5 min-w-0">
-        <div class="w-8 h-8 rounded-xl bg-[#007AFF] text-white flex items-center justify-center shrink-0 shadow-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
+        <img src="apple-touch-icon.png" alt="KWatermark" width="32" height="32" class="w-8 h-8 rounded-xl shrink-0 shadow-sm" />
         <div class="truncate">
           <h1 class="text-base font-semibold tracking-tight text-gray-900 truncate">KWatermark</h1>
-          <p id="headerSubtitle" class="text-[11px] text-gray-500 truncate">本機處理不上傳・支援照片與 PDF</p>
+          <p id="headerSubtitle" class="text-[11px] text-gray-500 truncate">本機處理不上傳・支援照片、PDF 與 Office 文件</p>
         </div>
       </div>
 
@@ -124,7 +120,7 @@
     </div>
   </header>
 
-  <input id="fileInput" type="file" accept="image/*,application/pdf" class="hidden" />
+  <input id="fileInput" type="file" accept="image/*,application/pdf,.pdf,.docx,.xlsx,.pptx,.doc,.xls,.ppt" class="hidden" />
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-3 sm:px-5 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
@@ -154,7 +150,7 @@
         <!-- Loading Overlay -->
         <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
           <div class="w-8 h-8 border-[3px] border-[#007AFF] border-t-transparent rounded-full animate-spin"></div>
-          <p id="loadingText" class="text-xs font-medium text-gray-700">處理中...</p>
+          <p id="loadingText" class="text-xs font-medium text-gray-700">Processing...</p>
         </div>
       </div>
 
@@ -218,9 +214,9 @@ Under the NDA agreement</textarea>
         <div class="space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span id="overallScaleLabel" class="font-medium text-gray-700">整體佔版面縮放比例</span>
-            <span id="overallScaleVal" class="font-semibold text-[#007AFF] tabular-nums">125%</span>
+            <span id="overallScaleVal" class="font-semibold text-[#007AFF] tabular-nums">150%</span>
           </div>
-          <input id="overallScaleInput" type="range" min="25" max="200" step="5" value="125" />
+          <input id="overallScaleInput" type="range" min="25" max="200" step="5" value="150" />
           <p id="overallScaleHint" class="text-[11px] text-gray-400">等比例放大或縮小浮水印在整體版面上的視覺佔比</p>
         </div>
 
@@ -312,7 +308,7 @@ Under the NDA agreement</textarea>
 
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-200 translate-y-2">
-    <div id="toastInner" class="px-4 py-2.5 rounded-full bg-gray-900/90 text-white text-xs font-medium shadow-lg backdrop-blur-md whitespace-nowrap"></div>
+    <div id="toastInner" class="px-4 py-2.5 rounded-2xl bg-gray-900/90 text-white text-xs font-medium shadow-lg backdrop-blur-md max-w-[88vw] text-center whitespace-pre-line"></div>
   </div>
 
   <!-- iPhone Tips Modal -->
@@ -354,12 +350,15 @@ Under the NDA agreement</textarea>
       const I18N = {
         zh: {
           toggleBtn: 'EN',
-          subtitle: '本機處理不上傳・支援照片與 PDF',
+          subtitle: '本機處理不上傳・支援照片、PDF 與 Office 文件',
           chooseFile: '選擇檔案',
           exportBtn: '匯出檔案',
           badgeSample: '範例文件',
           badgeImage: '照片',
           badgePdf: 'PDF',
+          badgeWord: 'Word → PDF',
+          badgeExcel: 'Excel → PDF',
+          badgePpt: 'PowerPoint → PDF',
           resetSample: '重設為範例',
           iosTip: 'iPhone 使用小技巧',
           wmContentTitle: '浮水印內容',
@@ -393,7 +392,7 @@ Under the NDA agreement</textarea>
           modalTip2Title: '2. 加到主畫面像 App 一樣使用',
           modalTip2Body: '在 Safari 下方點選「分享」圖示 → 選擇「加入主畫面」，之後就能從桌面直接開啟。',
           modalTip3Title: '3. 隱私安全',
-          modalTip3Body: '所有照片與 PDF 均在您的 iPhone 瀏覽器本機端運算，不會上傳至任何伺服器。',
+          modalTip3Body: '所有照片、PDF 與 Office 文件均在您的瀏覽器本機端運算，不會上傳至任何伺服器。',
           modalConfirm: '我知道了',
           dimSize: (w, h) => `尺寸：${w} × ${h} px`,
           dimPdf: (p, n) => `PDF 預覽：第 ${p} 頁（共 ${n} 頁）`,
@@ -403,16 +402,53 @@ Under the NDA agreement</textarea>
           toastLoadedPdf: (n) => `已載入 PDF（共 ${n} 頁）`,
           toastShareOpened: '已開啟分享 / 儲存選單',
           toastDownloaded: '已開始下載成品',
-          toastLang: '已切換為繁體中文'
+          toastLang: '已切換為繁體中文',
+          loadingLibs: '載入轉換元件中...',
+          loadingConvert: (n, t) => `轉換為 PDF 中（${n} / ${t}）...`,
+          loadingConvertGeneric: '轉換為 PDF 中...',
+          toastLoadedOffice: (kind, n) => `已將 ${kind} 轉為 PDF（共 ${n} 頁）`,
+          errLegacyOffice: '不支援舊版 .doc / .xls / .ppt，請先在 Office 另存為 .docx / .xlsx / .pptx',
+          errOfficeLib: '轉換元件載入失敗，請確認網路連線後重試（首次使用需連網下載元件）',
+          errOfficeConvert: '轉換失敗，檔案可能已加密、損毀或格式不支援',
+          errOfficeTooBig: '內容過多，轉換後頁數超過上限',
+          warnOfficeGraphics: '提醒：Excel 內的圖表無法轉換，輸出將不包含圖表（圖片已保留）',
+          warnOfficeImages: '提醒：部分圖片無法讀取或格式不支援（如 EMF / WMF），已略過',
+          loadingDefault: '處理中...',
+          loadingPage: (n) => `載入第 ${n} 頁...`,
+          loadingPhoto: '載入照片中...',
+          loadingPdfParse: '解析 PDF 中...',
+          loadingExportPdf: '正在產生浮水印 PDF...',
+          loadingExportPage: (i, n) => `處理第 ${i} / ${n} 頁...`,
+          loadingExportPhoto: '正在合成高畫質照片...',
+          errPageRender: 'PDF 頁面渲染失敗',
+          errUnsupportedFile: '請選擇照片、PDF 或 Word / Excel / PowerPoint 檔案',
+          errPhotoRead: '無法讀取此圖片格式',
+          errPdfRead: 'PDF 讀取失敗，請確認檔案未加密損毀',
+          errPdfLib: 'PDF 輸出元件尚未載入，請稍候再試',
+          errPdfExport: 'PDF 匯出失敗，請重試',
+          errPhotoExport: '照片匯出失敗',
+          toastOffline: '已啟用離線快取，沒網路也能使用',
+          ariaPrev: '上一頁',
+          ariaNext: '下一頁',
+          colorCustom: '自訂顏色',
+          color_1E293B: '深灰',
+          color_000000: '純黑',
+          color_FFFFFF: '純白',
+          color_DC2626: '紅色',
+          color_007AFF: '藍色',
+          color_D97706: '琥珀色'
         },
         en: {
           toggleBtn: '繁中',
-          subtitle: 'Local Processing Only · Photos & PDF',
+          subtitle: 'Local Processing Only · Photos, PDF & Office',
           chooseFile: 'Choose File',
           exportBtn: 'Export',
           badgeSample: 'Sample',
           badgeImage: 'Photo',
           badgePdf: 'PDF',
+          badgeWord: 'Word → PDF',
+          badgeExcel: 'Excel → PDF',
+          badgePpt: 'PowerPoint → PDF',
           resetSample: 'Reset Sample',
           iosTip: 'iPhone Tips',
           wmContentTitle: 'Watermark Content',
@@ -446,7 +482,7 @@ Under the NDA agreement</textarea>
           modalTip2Title: '2. Add to Home Screen',
           modalTip2Body: 'Tap the Share icon in Safari and choose "Add to Home Screen" to use it like a standalone app.',
           modalTip3Title: '3. Privacy First',
-          modalTip3Body: 'All photos and PDFs are processed locally on your device and never uploaded to any server.',
+          modalTip3Body: 'All photos, PDFs and Office documents are processed locally on your device and never uploaded to any server.',
           modalConfirm: 'Got it',
           dimSize: (w, h) => `Size: ${w} × ${h} px`,
           dimPdf: (p, n) => `PDF Preview: Page ${p} of ${n}`,
@@ -456,11 +492,45 @@ Under the NDA agreement</textarea>
           toastLoadedPdf: (n) => `PDF loaded (${n} pages)`,
           toastShareOpened: 'Share / Save sheet opened',
           toastDownloaded: 'Download started',
-          toastLang: 'Switched to English'
+          toastLang: 'Switched to English',
+          loadingLibs: 'Loading converter...',
+          loadingConvert: (n, t) => `Converting to PDF (${n} / ${t})...`,
+          loadingConvertGeneric: 'Converting to PDF...',
+          toastLoadedOffice: (kind, n) => `${kind} converted to PDF (${n} pages)`,
+          errLegacyOffice: 'Legacy .doc / .xls / .ppt is not supported. Please re-save as .docx / .xlsx / .pptx first.',
+          errOfficeLib: 'Failed to load converter. Check your connection and retry (first use needs to download it).',
+          errOfficeConvert: 'Conversion failed. The file may be encrypted, corrupted or unsupported.',
+          errOfficeTooBig: 'Document is too large: page limit exceeded after conversion',
+          warnOfficeGraphics: 'Note: charts inside Excel are not converted and will be missing (images are kept)',
+          warnOfficeImages: 'Note: some pictures could not be read or use an unsupported format (e.g. EMF / WMF) and were skipped',
+          loadingDefault: 'Processing...',
+          loadingPage: (n) => `Loading page ${n}...`,
+          loadingPhoto: 'Loading photo...',
+          loadingPdfParse: 'Parsing PDF...',
+          loadingExportPdf: 'Generating watermarked PDF...',
+          loadingExportPage: (i, n) => `Processing page ${i} / ${n}...`,
+          loadingExportPhoto: 'Rendering high-quality photo...',
+          errPageRender: 'Failed to render PDF page',
+          errUnsupportedFile: 'Please choose a photo, PDF, or Word / Excel / PowerPoint file',
+          errPhotoRead: 'This image format cannot be read',
+          errPdfRead: 'Failed to read PDF. Make sure it is not encrypted or corrupted',
+          errPdfLib: 'PDF export component is still loading, please try again shortly',
+          errPdfExport: 'PDF export failed, please try again',
+          errPhotoExport: 'Photo export failed',
+          toastOffline: 'Offline cache enabled — works without a connection',
+          ariaPrev: 'Previous page',
+          ariaNext: 'Next page',
+          colorCustom: 'Custom color',
+          color_1E293B: 'Dark gray',
+          color_000000: 'Black',
+          color_FFFFFF: 'White',
+          color_DC2626: 'Red',
+          color_007AFF: 'Blue',
+          color_D97706: 'Amber'
         }
       };
 
-      let savedLang = 'zh';
+      let savedLang = 'en';
       try {
         const stored = localStorage.getItem('kwatermark_lang');
         if (stored === 'en' || stored === 'zh') savedLang = stored;
@@ -470,6 +540,7 @@ Under the NDA agreement</textarea>
       const state = {
         lang: savedLang,
         fileType: 'sample', // 'sample' | 'image' | 'pdf'
+        sourceKind: 'sample', // 'sample' | 'image' | 'pdf' | 'word' | 'excel' | 'ppt'
         fileName: '身分證件影本範例.png',
         imageObj: null,
         pdfBytes: null,
@@ -484,7 +555,7 @@ Under the NDA agreement</textarea>
           email: '',
           text: 'Release to [CompanyName]\n[UserName] <email>\nUnder the NDA agreement',
           mode: 'single', // 'tile' | 'single'
-          overallScale: 125, // 25 - 200 (%)
+          overallScale: 150, // 25 - 200 (%)
           spacing: 100, // 50 - 220 (%)
           fontSize: 34, // 12 - 110 (relative to 1000px base)
           bold: true,
@@ -545,7 +616,7 @@ Under the NDA agreement</textarea>
       };
 
       let toastTimer = null;
-      function showToast(msg) {
+      function showToast(msg, ms = 2600) {
         els.toastInner.textContent = msg;
         els.toast.classList.remove('opacity-0', 'translate-y-2');
         els.toast.classList.add('opacity-100', 'translate-y-0');
@@ -553,10 +624,10 @@ Under the NDA agreement</textarea>
         toastTimer = setTimeout(() => {
           els.toast.classList.add('opacity-0', 'translate-y-2');
           els.toast.classList.remove('opacity-100', 'translate-y-0');
-        }, 2600);
+        }, ms);
       }
 
-      function setLoading(show, text = '處理中...') {
+      function setLoading(show, text = I18N[state.lang].loadingDefault) {
         els.loadingText.textContent = text;
         els.loadingOverlay.classList.toggle('hidden', !show);
         els.exportBtn.disabled = show;
@@ -606,7 +677,7 @@ Under the NDA agreement</textarea>
         ctx.fillText(isEn ? 'Document Type: ID / Contract Copy' : '文件類型：身分證明 / 合約影本', 365, 255);
         ctx.fillStyle = '#64748B';
         ctx.font = '24px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
-        ctx.fillText(isEn ? 'Tap "Choose File" above to upload a photo or PDF' : '說明：請點擊上方「選擇檔案」上傳您的照片或 PDF', 365, 315);
+        ctx.fillText(isEn ? 'Tap "Choose File" above to upload a photo, PDF or Office file' : '說明：請點擊上方「選擇檔案」上傳您的照片、PDF 或 Office 檔案', 365, 315);
         ctx.fillText(isEn ? 'Adjust controls below for live watermark preview' : '調整下方控制項即可即時預覽浮水印效果', 365, 360);
 
         // Decorative lines
@@ -618,6 +689,7 @@ Under the NDA agreement</textarea>
         roundRect(ctx, 115, 615, 620, 18, 9, true, false);
 
         state.fileType = 'sample';
+        state.sourceKind = 'sample';
         state.fileName = isEn ? 'sample-document.png' : '身分證件影本範例.png';
         els.fileTypeBadge.textContent = I18N[state.lang].badgeSample;
         els.fileNameLabel.textContent = '';
@@ -732,7 +804,7 @@ Under the NDA agreement</textarea>
       // Render a specific PDF page onto state.baseCanvas
       async function renderPdfPage(pageNum) {
         if (!state.pdfDocJs) return;
-        setLoading(true, `載入第 ${pageNum} 頁...`);
+        setLoading(true, I18N[state.lang].loadingPage(pageNum));
         try {
           const page = await state.pdfDocJs.getPage(pageNum);
           const viewport = page.getViewport({ scale: 2.0 });
@@ -751,29 +823,680 @@ Under the NDA agreement</textarea>
           els.dimensionInfo.textContent = I18N[state.lang].dimPdf(pageNum, state.pdfNumPages);
           renderPreview();
         } catch (err) {
-          showToast('PDF 頁面渲染失敗');
+          showToast(I18N[state.lang].errPageRender);
         } finally {
           setLoading(false);
         }
       }
 
-      // Handle uploaded file (Image or PDF)
+      // ===================================================================
+      // Office (docx / xlsx / pptx) → PDF, entirely in the browser.
+      // Files are parsed and rasterised locally; nothing is sent anywhere.
+      // Libraries are lazy-loaded (and cached by the service worker).
+      // ===================================================================
+      const LIBS = {
+        html2canvas: { url: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', global: 'html2canvas' },
+        jszip: { url: 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', global: 'JSZip' },
+        docx: { url: 'https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js', global: 'docx' },
+        exceljs: { url: 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js', global: 'ExcelJS' },
+        ssf: { url: 'https://cdn.jsdelivr.net/npm/ssf@0.11.2/ssf.js', global: 'SSF' },
+        pptx: { url: 'https://cdn.jsdelivr.net/npm/pptx-preview@1.0.7/dist/pptx-preview.umd.js', global: 'pptxPreview' }
+      };
+      const libPromises = {};
+      function loadLib(name) {
+        const lib = LIBS[name];
+        if (window[lib.global]) return Promise.resolve();
+        if (!libPromises[name]) {
+          libPromises[name] = new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = lib.url;
+            s.crossOrigin = 'anonymous'; // CORS fetch so the service worker can cache it for offline use
+            s.onload = () => (window[lib.global] ? resolve() : reject(new Error('lib:' + name)));
+            s.onerror = () => { delete libPromises[name]; s.remove(); reject(new Error('lib:' + name)); };
+            document.head.appendChild(s);
+          });
+        }
+        return libPromises[name];
+      }
+
+      const OFFICE_KINDS = {
+        word: { exts: ['docx'], badge: 'badgeWord', label: 'Word' },
+        excel: { exts: ['xlsx'], badge: 'badgeExcel', label: 'Excel' },
+        ppt: { exts: ['pptx'], badge: 'badgePpt', label: 'PowerPoint' }
+      };
+      function detectOfficeKind(file) {
+        const m = /\.([a-z0-9]+)$/i.exec(file.name || '');
+        const ext = m ? m[1].toLowerCase() : '';
+        for (const [kind, def] of Object.entries(OFFICE_KINDS)) {
+          if (def.exts.includes(ext)) return kind;
+        }
+        if (['doc', 'xls', 'ppt'].includes(ext)) return 'legacy';
+        return null;
+      }
+
+      const PX_TO_PT = 0.75;        // CSS px (96dpi) -> PDF pt (72dpi)
+      const RENDER_SCALE = 2;       // raster density for converted pages
+      const MAX_OFFICE_PAGES = 400; // safety cap for memory
+
+      class OfficeConvertError extends Error {}
+
+      // Documents are rendered inside a blank off-screen iframe so the app's own CSS
+      // (Tailwind preflight, web fonts) cannot distort layout or html2canvas text placement.
+      async function createRenderHost() {
+        const frame = document.createElement('iframe');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.tabIndex = -1;
+        frame.style.cssText = 'position:fixed;left:-100000px;top:0;width:2400px;height:1600px;border:0;pointer-events:none;';
+        frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#fff;font-family:Calibri,Microsoft JhengHei,PingFang TC,Noto Sans TC,Arial,sans-serif"></body></html>';
+        await new Promise((resolve) => { frame.onload = resolve; document.body.appendChild(frame); });
+        // html2canvas measures font baselines with a probe <img> inserted into the *main* document.
+        // Tailwind's preflight makes every img display:block, which shifts all rendered text down by a line.
+        // Neutralise that for the duration of the conversion only.
+        const fix = document.createElement('style');
+        fix.textContent = 'img{display:inline !important;vertical-align:baseline !important;max-width:none !important;}';
+        document.head.appendChild(fix);
+        const host = frame.contentDocument.createElement('div');
+        frame.contentDocument.body.appendChild(host);
+        host.remove = () => { frame.remove(); fix.remove(); }; // dispose of the iframe and the temporary fix
+        return host;
+      }
+
+      async function settleRender(root) {
+        const fonts = root.ownerDocument.fonts;
+        if (fonts && fonts.ready) { try { await fonts.ready; } catch (e) {} }
+        const imgs = Array.from(root.querySelectorAll('img'));
+        await Promise.all(imgs.map((img) => (img.complete ? null : new Promise((r) => {
+          img.addEventListener('load', r, { once: true });
+          img.addEventListener('error', r, { once: true });
+        }))));
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      }
+
+      async function snapshot(el) {
+        return window.html2canvas(el, { scale: RENDER_SCALE, backgroundColor: '#ffffff', useCORS: true, logging: false });
+      }
+
+      // Rasterised page -> JPEG -> PDF page. Frees the canvas right away to keep memory low (iOS).
+      async function addCanvasPage(pdfDoc, canvas, cssW, cssH) {
+        if (pdfDoc.getPageCount() >= MAX_OFFICE_PAGES) throw new OfficeConvertError('too-big');
+        const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.92));
+        canvas.width = 0; canvas.height = 0;
+        if (!blob) throw new OfficeConvertError('canvas');
+        const img = await pdfDoc.embedJpg(await blob.arrayBuffer());
+        const wPt = cssW * PX_TO_PT, hPt = cssH * PX_TO_PT;
+        const page = pdfDoc.addPage([wPt, hPt]);
+        page.drawImage(img, { x: 0, y: 0, width: wPt, height: hPt });
+      }
+
+      // ---- Word -------------------------------------------------------
+      async function convertWord(file, host, pdfDoc, progress) {
+        await loadLib('html2canvas'); await loadLib('jszip'); await loadLib('docx');
+        await window.docx.renderAsync(await file.arrayBuffer(), host, null, {
+          inWrapper: false, breakPages: true, useBase64URL: true,
+          ignoreLastRenderedPageBreak: false, // reuse the page breaks Word itself stored in the file
+          renderHeaders: true, renderFooters: true, renderFootnotes: true, renderEndnotes: true
+        });
+        await settleRender(host);
+        const pages = Array.from(host.querySelectorAll('section.docx'));
+        if (!pages.length) throw new OfficeConvertError('empty');
+        for (let i = 0; i < pages.length; i++) {
+          progress(i + 1, pages.length);
+          const sec = pages[i];
+          const w = sec.offsetWidth, h = sec.offsetHeight;
+          const nominalH = parseFloat(getComputedStyle(sec).minHeight) || h; // computed value is always px
+          const canvas = await snapshot(sec);
+          if (h <= nominalH * 1.02) {
+            await addCanvasPage(pdfDoc, canvas, w, h);
+          } else {
+            // Content taller than one sheet (no stored page breaks): cut it into sheet-sized pages
+            await addSlicedPages(pdfDoc, canvas, w, h, nominalH);
+          }
+        }
+      }
+
+      // Cut a tall rendering into pages, preferring cut lines that fall in blank rows (between text lines).
+      async function addSlicedPages(pdfDoc, canvas, cssW, cssH, pageH) {
+        const MARGIN = 40;
+        const ratio = canvas.height / cssH;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const isBlankRow = (y) => {
+          const d = ctx.getImageData(0, y, canvas.width, 1).data;
+          for (let i = 0; i < d.length; i += 4) { if (d[i] < 245 || d[i + 1] < 245 || d[i + 2] < 245) return false; }
+          return true;
+        };
+        let y = 0; // canvas px
+        let first = true;
+        while (y < canvas.height - 1) {
+          const topPad = first ? 0 : MARGIN;
+          const capacity = Math.round((pageH - topPad - MARGIN) * ratio);
+          let end = Math.min(canvas.height, y + capacity);
+          if (end < canvas.height) {
+            const floor = Math.max(y + 1, end - Math.round(60 * ratio));
+            for (let yy = end; yy > floor; yy--) { if (isBlankRow(yy)) { end = yy; break; } }
+          }
+          const out = document.createElement('canvas');
+          out.width = canvas.width; out.height = Math.round(pageH * ratio);
+          const octx = out.getContext('2d');
+          octx.fillStyle = '#fff'; octx.fillRect(0, 0, out.width, out.height);
+          octx.drawImage(canvas, 0, y, canvas.width, end - y, 0, Math.round(topPad * ratio), canvas.width, end - y);
+          await addCanvasPage(pdfDoc, out, cssW, pageH);
+          y = end;
+          first = false;
+        }
+        canvas.width = 0; canvas.height = 0;
+      }
+
+      // ---- PowerPoint -------------------------------------------------
+      async function convertPpt(file, host, pdfDoc, progress) {
+        await loadLib('html2canvas'); await loadLib('pptx');
+        const previewer = window.pptxPreview.init(host, { width: 960, mode: 'list' });
+        await previewer.preview(await file.arrayBuffer());
+        await settleRender(host);
+        const slides = Array.from(host.querySelectorAll('.pptx-preview-slide-wrapper'));
+        if (!slides.length) throw new OfficeConvertError('empty');
+        for (let i = 0; i < slides.length; i++) {
+          progress(i + 1, slides.length);
+          const w = slides[i].offsetWidth, h = slides[i].offsetHeight;
+          await addCanvasPage(pdfDoc, await snapshot(slides[i]), w, h);
+        }
+      }
+
+      // ---- Excel ------------------------------------------------------
+      const DEFAULT_THEME = ['FFFFFF', '000000', 'E7E6E6', '44546A', '4472C4', 'ED7D31', 'A5A5A5', 'FFC000', '5B9BD5', '70AD47', '0563C1', '954F72'];
+      const INDEXED_BASIC = { 8: '000000', 9: 'FFFFFF', 10: 'FF0000', 11: '00FF00', 12: '0000FF', 13: 'FFFF00', 14: 'FF00FF', 15: '00FFFF', 64: '000000' };
+
+      async function readWorkbookExtras(buf) {
+        try {
+          const zip = await window.JSZip.loadAsync(buf);
+          const hasCharts = Object.keys(zip.files).some((f) => /^xl\/charts\//.test(f) && !zip.files[f].dir);
+          // Number of pictures the drawing XML says exist (used to detect pictures ExcelJS could not read)
+          let picCount = 0;
+          for (const f of Object.keys(zip.files)) {
+            if (/^xl\/drawings\/[^/]+\.xml$/.test(f)) picCount += (((await zip.file(f).async('string')).match(/<(?:xdr:)?pic[\s>]/g)) || []).length;
+          }
+          let cols = DEFAULT_THEME;
+          const themeFile = zip.file('xl/theme/theme1.xml');
+          if (themeFile) {
+            const xml = await themeFile.async('string');
+            const scheme = /<a:clrScheme[\s\S]*?<\/a:clrScheme>/.exec(xml)[0];
+            const pick = (tag) => {
+              const m = new RegExp('<a:' + tag + '>\\s*<a:(?:srgbClr val|sysClr[^>]*lastClr)="([0-9A-Fa-f]{6})"').exec(scheme);
+              return m ? m[1].toUpperCase() : null;
+            };
+            const names = ['lt1', 'dk1', 'lt2', 'dk2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6', 'hlink', 'folHlink'];
+            cols = names.map((n, i) => pick(n) || DEFAULT_THEME[i]);
+          }
+          return { cols, hasCharts, picCount };
+        } catch (e) {
+          return { cols: DEFAULT_THEME, hasCharts: false, picCount: 0 };
+        }
+      }
+
+      function applyTint(hex, tint) {
+        if (!tint) return hex;
+        const r = parseInt(hex.slice(0, 2), 16) / 255, g = parseInt(hex.slice(2, 4), 16) / 255, b = parseInt(hex.slice(4, 6), 16) / 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h = 0, s = 0, l = (max + min) / 2;
+        if (max !== min) {
+          const d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+          else if (max === g) h = (b - r) / d + 2;
+          else h = (r - g) / d + 4;
+          h /= 6;
+        }
+        l = tint < 0 ? l * (1 + tint) : l * (1 - tint) + tint;
+        const f = (p, q, t) => { t = (t + 1) % 1; if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; };
+        let rr, gg, bb;
+        if (s === 0) { rr = gg = bb = l; } else {
+          const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+          rr = f(p, q, h + 1 / 3); gg = f(p, q, h); bb = f(p, q, h - 1 / 3);
+        }
+        const x = (v) => Math.round(Math.min(1, Math.max(0, v)) * 255).toString(16).padStart(2, '0');
+        return (x(rr) + x(gg) + x(bb)).toUpperCase();
+      }
+
+      function colorToCss(c, theme) {
+        if (!c) return null;
+        if (c.argb) return '#' + c.argb.slice(-6);
+        if (typeof c.theme === 'number') return '#' + applyTint(theme[c.theme] || '000000', c.tint || 0);
+        if (typeof c.indexed === 'number') return INDEXED_BASIC[c.indexed] ? '#' + INDEXED_BASIC[c.indexed] : null;
+        return null;
+      }
+
+      function escHtml(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function colLetterToNum(letters) {
+        let n = 0;
+        for (const ch of letters.toUpperCase()) n = n * 26 + (ch.charCodeAt(0) - 64);
+        return n;
+      }
+      function parseRange(ref) {
+        const m = /^\$?([A-Za-z]+)\$?(\d+)(?::\$?([A-Za-z]+)\$?(\d+))?$/.exec(ref);
+        if (!m) return null;
+        const c1 = colLetterToNum(m[1]), r1 = +m[2];
+        return { r1, c1, r2: m[4] ? +m[4] : r1, c2: m[3] ? colLetterToNum(m[3]) : c1 };
+      }
+
+      const BORDER_PX = { thin: 1, hair: 1, dotted: 1, dashed: 1, mediumDashed: 2, dashDot: 1, dashDotDot: 1, slantDashDot: 1, medium: 2, mediumDashDot: 2, mediumDashDotDot: 2, thick: 3, double: 3 };
+      function borderCss(b, theme) {
+        if (!b || !b.style) return null;
+        const w = BORDER_PX[b.style] || 1;
+        const style = b.style === 'double' ? 'double' : /dash|slant/i.test(b.style) ? 'dashed' : (b.style === 'dotted' || b.style === 'hair') ? 'dotted' : 'solid';
+        return w + 'px ' + style + ' ' + (colorToCss(b.color, theme) || '#000');
+      }
+
+      function richTextOf(rt) { return rt.richText.map((t) => t.text).join(''); }
+
+      // Resolve a cell to the text Excel would display (number formats via SSF).
+      function cellDisplayText(cell) {
+        let v = cell.value;
+        if (v === null || v === undefined) return '';
+        if (typeof v === 'object' && !(v instanceof Date)) {
+          if (v.richText) return richTextOf(v);
+          if ('formula' in v || 'sharedFormula' in v || 'result' in v) {
+            v = v.result;
+          } else if (v.text !== undefined) {
+            return v.text && v.text.richText ? richTextOf(v.text) : String(v.text);
+          } else if (v.error) {
+            return String(v.error);
+          }
+          if (v === null || v === undefined) return '';
+          if (typeof v === 'object' && !(v instanceof Date)) {
+            if (v.richText) return richTextOf(v);
+            if (v.error) return String(v.error);
+            return '';
+          }
+        }
+        if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+        const fmt = cell.numFmt || 'General';
+        if (v instanceof Date) {
+          const serial = (v.getTime() - Date.UTC(1899, 11, 30)) / 86400000;
+          try { return window.SSF.format(/^General$/i.test(fmt) ? 'yyyy-mm-dd' : fmt, serial); } catch (e) { return v.toISOString().slice(0, 10); }
+        }
+        if (typeof v === 'number') {
+          try { return window.SSF.format(fmt, v); } catch (e) { return String(v); }
+        }
+        return String(v);
+      }
+
+      // Greedy split of 1-based size array into [start, end] runs not exceeding `limit` (hidden = size 0 are skipped).
+      function chunkSizes(sizes, limit) {
+        const out = [];
+        let start = null, acc = 0, last = null;
+        for (let i = 1; i < sizes.length; i++) {
+          if (!sizes[i]) continue;
+          if (start === null) { start = i; acc = 0; }
+          if (acc + sizes[i] > limit && acc > 0) { out.push([start, last]); start = i; acc = 0; }
+          acc += sizes[i];
+          last = i;
+        }
+        if (start !== null) out.push([start, last]);
+        return out;
+      }
+
+      // ExcelJS is strict about how a workbook's drawing parts are written. Files from some generators
+      // (e.g. openpyxl) use absolute relationship targets and a default-namespace drawing XML, which makes
+      // ExcelJS fail on the whole file. Level 1 repairs those; level 2 drops the drawing layer entirely so
+      // at least the cell contents still convert.
+      const XDR_NS = 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing';
+      const XDR_TAGS = 'wsDr|twoCellAnchor|oneCellAnchor|absoluteAnchor|from|to|col|colOff|row|rowOff|pos|ext|pic|sp|grpSp|graphicFrame|cxnSp|nvPicPr|cNvPr|cNvPicPr|blipFill|spPr|clientData|nvSpPr|cNvSpPr|txBody|style|nvGraphicFramePr|cNvGraphicFramePr|nvCxnSpPr|cNvCxnSpPr|nvGrpSpPr|cNvGrpSpPr|grpSpPr|contentPart';
+      async function repairXlsx(buf, dropDrawings) {
+        const zip = await window.JSZip.loadAsync(buf);
+        const relTo = (fromDir, target) => {
+          const a = fromDir.split('/').filter(Boolean), b = target.split('/').filter(Boolean);
+          while (a.length && b.length > 1 && a[0] === b[0]) { a.shift(); b.shift(); }
+          return '../'.repeat(a.length) + b.join('/');
+        };
+        for (const name of Object.keys(zip.files)) {
+          if (zip.files[name].dir) continue;
+          if (dropDrawings && /^xl\/(drawings|charts|media)\//.test(name)) { zip.remove(name); continue; }
+          if (/\.rels$/.test(name)) {
+            const m = /^(.*)_rels\/[^/]*\.rels$/.exec(name);
+            const baseDir = m ? m[1] : ''; // directory of the part that owns this .rels file
+            const xml = await zip.file(name).async('string');
+            const fixed = xml.replace(/<Relationship\b[^>]*>/g, (tag) => {
+              if (dropDrawings && /relationships\/(drawing|image|chart)"/.test(tag)) return '';
+              return /TargetMode="External"/.test(tag) ? tag : tag.replace(/Target="\/([^"]+)"/, (all, t) => 'Target="' + relTo(baseDir, t) + '"');
+            });
+            if (fixed !== xml) zip.file(name, fixed);
+          } else if (/^xl\/drawings\/[^/]+\.xml$/.test(name)) {
+            const xml = await zip.file(name).async('string');
+            if (new RegExp('<wsDr\\b[^>]*xmlns="' + XDR_NS + '"').test(xml)) {
+              const fixed = xml
+                .replace(new RegExp('<(/?)(' + XDR_TAGS + ')(?=[\\s>/])', 'g'), '<$1xdr:$2')
+                .replace('<xdr:wsDr', '<xdr:wsDr xmlns:xdr="' + XDR_NS + '"');
+              zip.file(name, fixed);
+            }
+          } else if (dropDrawings && /^xl\/worksheets\/[^/]+\.xml$/.test(name)) {
+            const xml = await zip.file(name).async('string');
+            zip.file(name, xml.replace(/<drawing\b[^>]*\/>/g, '').replace(/<legacyDrawing\b[^>]*\/>/g, ''));
+          }
+        }
+        return zip.generateAsync({ type: 'arraybuffer' });
+      }
+
+      async function convertExcel(file, host, pdfDoc, progress, notify) {
+        await loadLib('html2canvas'); await loadLib('jszip'); await loadLib('exceljs'); await loadLib('ssf');
+        let buf = await file.arrayBuffer();
+        const { cols: theme, hasCharts, picCount } = await readWorkbookExtras(buf);
+        let wb = new window.ExcelJS.Workbook();
+        let skippedImages = false;
+        try {
+          await wb.xlsx.load(buf);
+        } catch (e1) {
+          try {
+            wb = new window.ExcelJS.Workbook();
+            await wb.xlsx.load(await repairXlsx(buf, false)); // level 1: repair drawing/relationship quirks
+          } catch (e2) {
+            wb = new window.ExcelJS.Workbook();
+            await wb.xlsx.load(await repairXlsx(buf, true)); // level 2: cells only, pictures dropped
+            skippedImages = true;
+          }
+        }
+        if (hasCharts) notify('warnOfficeGraphics');
+
+        const IMG_MIME = { png: 'image/png', jpeg: 'image/jpeg', jpg: 'image/jpeg', gif: 'image/gif', bmp: 'image/bmp', webp: 'image/webp' };
+        const imgUrlCache = new Map();
+        const mediaDataUrl = (id, media, mime) => {
+          if (!imgUrlCache.has(id)) {
+            const bytes = media.buffer;
+            let bin = '';
+            for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+            imgUrlCache.set(id, 'data:' + mime + ';base64,' + btoa(bin));
+          }
+          return imgUrlCache.get(id);
+        };
+
+        const sheets = [];
+        wb.eachSheet((ws) => { if (ws.state === 'visible') sheets.push(ws); });
+
+        const FONT_STACK = "Calibri,'Microsoft JhengHei','PingFang TC','Noto Sans TC',Arial,sans-serif"; // Latin -> Calibri, CJK falls through
+        const MARGIN = 40;
+        let rendered = 0;
+
+        for (const ws of sheets) {
+          // Used range = last cell with visible text, extended by merged ranges
+          let lastRow = 0, lastCol = 0;
+          ws.eachRow({ includeEmpty: false }, (row, rn) => {
+            row.eachCell({ includeEmpty: false }, (cell, cn) => {
+              if (cellDisplayText(cell) !== '') { if (rn > lastRow) lastRow = rn; if (cn > lastCol) lastCol = cn; }
+            });
+          });
+          const merges = [];
+          for (const ref of (ws.model.merges || [])) {
+            const m = parseRange(ref);
+            if (!m) continue;
+            merges.push(m);
+            if (m.r2 > lastRow) lastRow = m.r2;
+            if (m.c2 > lastCol) lastCol = m.c2;
+          }
+          const sheetImages = ws.getImages();
+          if ((!lastRow || !lastCol) && !sheetImages.length) continue;
+          lastRow = Math.max(lastRow, 1); lastCol = Math.max(lastCol, 1);
+          // key "r,c" -> merge object (master) | null (covered by another cell)
+          const mergeAt = new Map();
+          for (const m of merges) {
+            for (let r = m.r1; r <= m.r2; r++) for (let c = m.c1; c <= m.c2; c++) mergeAt.set(r + ',' + c, null);
+            mergeAt.set(m.r1 + ',' + m.c1, m);
+          }
+
+          // Geometry in CSS px
+          const defColPx = Math.round(((ws.properties && ws.properties.defaultColWidth) || 8.43) * 7 + 5);
+          const defRowPx = Math.round(((ws.properties && ws.properties.defaultRowHeight) || 15) * 96 / 72);
+          const colW = [0], rowH = [0];
+          const ensureCols = (n) => { for (let c = colW.length; c <= n; c++) { const col = ws.getColumn(c); colW[c] = col.hidden ? 0 : (col.width ? Math.round(col.width * 7 + 5) : defColPx); } };
+          const ensureRows = (n) => { for (let r = rowH.length; r <= n; r++) { const row = ws.getRow(r); rowH[r] = row.hidden ? 0 : (row.height ? Math.round(row.height * 96 / 72) : defRowPx); } };
+          ensureCols(lastCol); ensureRows(lastRow);
+          const sumTo = (arr, n) => { let t = 0; for (let i = 1; i <= n && i < arr.length; i++) t += arr[i]; return t; };
+
+          // Pictures: absolute position/size in sheet px from their cell anchors (1 px = 9525 EMU)
+          const placed = [];
+          for (const im of sheetImages) {
+            const media = wb.getImage(im.imageId);
+            const mime = media && IMG_MIME[String(media.extension || '').toLowerCase()];
+            if (!mime || !media.buffer) { skippedImages = true; continue; }
+            const { tl, br, ext } = im.range;
+            if (!tl) continue;
+            ensureCols(tl.nativeCol + 1); ensureRows(tl.nativeRow + 1);
+            const x0 = sumTo(colW, tl.nativeCol) + (tl.nativeColOff || 0) / 9525;
+            const y0 = sumTo(rowH, tl.nativeRow) + (tl.nativeRowOff || 0) / 9525;
+            let w, h;
+            if (br) {
+              ensureCols(br.nativeCol + 1); ensureRows(br.nativeRow + 1);
+              w = sumTo(colW, br.nativeCol) + (br.nativeColOff || 0) / 9525 - x0;
+              h = sumTo(rowH, br.nativeRow) + (br.nativeRowOff || 0) / 9525 - y0;
+            } else if (ext) { w = ext.width; h = ext.height; }
+            if (!(w > 0 && h > 0)) continue;
+            placed.push({ x0, y0, w, h, src: mediaDataUrl(im.imageId, media, mime) });
+          }
+          // Grow the printable range so every picture is fully inside it
+          for (const im of placed) {
+            for (let guard = 0; sumTo(colW, lastCol) < im.x0 + im.w - 0.5 && guard < 3000; guard++) { lastCol++; ensureCols(lastCol); }
+            for (let guard = 0; sumTo(rowH, lastRow) < im.y0 + im.h - 0.5 && guard < 20000; guard++) { lastRow++; ensureRows(lastRow); }
+          }
+          colW.length = lastCol + 1; rowH.length = lastRow + 1;
+          const colPre = [0], rowPre = [0];
+          for (let c = 1; c <= lastCol; c++) colPre[c] = colPre[c - 1] + colW[c];
+          for (let r = 1; r <= lastRow; r++) rowPre[r] = rowPre[r - 1] + rowH[r];
+          const showGrid = !(ws.views && ws.views[0] && ws.views[0].showGridLines === false);
+          const GRID = '1px solid #d4d4d4';
+
+          const edgeOf = (r, c, side) => {
+            if (r < 1 || c < 1 || r > lastRow || c > lastCol) return null;
+            const b = ws.getCell(r, c).border;
+            return b ? borderCss(b[side], theme) : null;
+          };
+          const rightEdge = (r, c) => edgeOf(r, c, 'right') || edgeOf(r, c + 1, 'left') || (showGrid ? GRID : null);
+          const bottomEdge = (r, c) => edgeOf(r, c, 'bottom') || edgeOf(r + 1, c, 'top') || (showGrid ? GRID : null);
+
+          // Page geometry: portrait for narrow sheets, landscape for wide ones; shrink to fit down to 60%, then split into column bands
+          const totalW = colW.reduce((a, b) => a + b, 0);
+          const landscape = totalW > 710;
+          const pageW = landscape ? 1123 : 794, pageH = landscape ? 794 : 1123;
+          const contentW = pageW - MARGIN * 2, contentH = pageH - MARGIN * 2 - 14;
+          const fit = Math.max(0.6, Math.min(1, contentW / totalW));
+          const colBands = chunkSizes(colW, contentW / fit);
+          const rowChunks = chunkSizes(rowH, contentH / fit);
+          const pageTotal = colBands.length * rowChunks.length;
+          let pageNo = 0;
+
+          for (const [c0, c1] of colBands) {
+            for (const [r0, r1] of rowChunks) {
+              pageNo++;
+              progress(rendered + 1, null);
+
+              let html = '<table style="border-collapse:separate;border-spacing:0;table-layout:fixed;font-family:' + FONT_STACK + ';background:#fff;color:#000;"><colgroup>';
+              for (let c = c0; c <= c1; c++) if (colW[c]) html += '<col style="width:' + colW[c] + 'px">';
+              html += '</colgroup>';
+              let firstRow = true;
+              for (let r = r0; r <= r1; r++) {
+                if (!rowH[r]) continue;
+                html += '<tr style="height:' + rowH[r] + 'px">';
+                let firstCol = true;
+                for (let c = c0; c <= c1; c++) {
+                  if (!colW[c]) continue;
+                  const key = r + ',' + c;
+                  let m = mergeAt.get(key) || null;
+                  if (mergeAt.has(key) && m === null) {
+                    // Covered by a merge. Only emit when the merge's master is off this page (continuation cell).
+                    const master = merges.find((mm) => r >= mm.r1 && r <= mm.r2 && c >= mm.c1 && c <= mm.c2);
+                    const masterOnPage = master.r1 >= r0 && master.c1 >= c0;
+                    const topLeftVisible = r === Math.max(r0, master.r1) && c === Math.max(c0, master.c1);
+                    if (masterOnPage || !topLeftVisible) { firstCol = false; continue; }
+                    m = master;
+                  }
+                  const cell = m ? ws.getCell(m.r1, m.c1) : ws.getCell(r, c);
+                  const rs = m ? Math.min(m.r2, r1) - r + 1 : 1;
+                  const cs = m ? Math.min(m.c2, c1) - c + 1 : 1;
+                  const endR = m ? Math.min(m.r2, r1) : r, endC = m ? Math.min(m.c2, c1) : c;
+
+                  const st = [];
+                  const f = cell.font || {};
+                  st.push('font-size:' + ((f.size || 11) * 96 / 72).toFixed(1) + 'px');
+                  if (f.name) st.push("font-family:'" + String(f.name).replace(/['"]/g, '') + "'," + FONT_STACK);
+                  if (f.bold) st.push('font-weight:700');
+                  if (f.italic) st.push('font-style:italic');
+                  const deco = [f.underline ? 'underline' : '', f.strike ? 'line-through' : ''].filter(Boolean).join(' ');
+                  if (deco) st.push('text-decoration:' + deco);
+                  const fc = colorToCss(f.color, theme); if (fc) st.push('color:' + fc);
+                  const fill = cell.fill;
+                  if (fill && fill.type === 'pattern' && fill.pattern === 'solid') {
+                    const bg = colorToCss(fill.fgColor, theme); if (bg) st.push('background:' + bg);
+                  }
+                  const al = cell.alignment || {};
+                  const v = cell.value;
+                  const isNum = typeof v === 'number' || v instanceof Date || (v && typeof v === 'object' && typeof v.result === 'number');
+                  const h = al.horizontal || (isNum ? 'right' : 'left');
+                  st.push('text-align:' + (h === 'centerContinuous' ? 'center' : h === 'fill' ? 'left' : h));
+                  st.push('vertical-align:' + (al.vertical === 'top' ? 'top' : (al.vertical === 'middle' || al.vertical === 'center') ? 'middle' : 'bottom'));
+                  st.push(al.wrapText ? 'white-space:pre-wrap;word-break:break-word' : 'white-space:nowrap');
+                  st.push('overflow:hidden;box-sizing:border-box;line-height:1.1;padding:0 3px' + (al.indent ? ';padding-left:' + (al.indent * 9 + 3) + 'px' : ''));
+                  const re = rightEdge(endR, endC), be = bottomEdge(endR, endC);
+                  if (re) st.push('border-right:' + re);
+                  if (be) st.push('border-bottom:' + be);
+                  if (firstRow) { const te = edgeOf(r, c, 'top') || (showGrid ? GRID : null); if (te) st.push('border-top:' + te); }
+                  if (firstCol) { const le = edgeOf(r, c, 'left') || (showGrid ? GRID : null); if (le) st.push('border-left:' + le); }
+
+                  html += '<td' + (rs > 1 ? ' rowspan="' + rs + '"' : '') + (cs > 1 ? ' colspan="' + cs + '"' : '') + ' style="' + st.join(';') + '">' + escHtml(cellDisplayText(cell)) + '</td>';
+                  firstCol = false;
+                }
+                html += '</tr>';
+                firstRow = false;
+              }
+              html += '</table>';
+
+              // Pictures that intersect this page, clipped to the page's table area
+              const bandL = colPre[c0 - 1], bandR = colPre[c1], bandT = rowPre[r0 - 1], bandB = rowPre[r1];
+              let imgHtml = '';
+              for (const im of placed) {
+                if (im.x0 < bandR && im.x0 + im.w > bandL && im.y0 < bandB && im.y0 + im.h > bandT) {
+                  imgHtml += '<img src="' + im.src + '" style="position:absolute;display:block;max-width:none;left:' + (im.x0 - bandL).toFixed(2) + 'px;top:' + (im.y0 - bandT).toFixed(2) + 'px;width:' + im.w.toFixed(2) + 'px;height:' + im.h.toFixed(2) + 'px;">';
+                }
+              }
+              host.innerHTML = '<div style="position:relative;display:inline-block;overflow:hidden;background:#fff;">' + html + imgHtml + '</div>';
+              await settleRender(host);
+              const tableCanvas = await snapshot(host.firstElementChild);
+
+              const pageCanvas = document.createElement('canvas');
+              pageCanvas.width = pageW * RENDER_SCALE; pageCanvas.height = pageH * RENDER_SCALE;
+              const pctx = pageCanvas.getContext('2d');
+              pctx.fillStyle = '#fff'; pctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+              pctx.drawImage(tableCanvas, MARGIN * RENDER_SCALE, MARGIN * RENDER_SCALE, tableCanvas.width * fit, tableCanvas.height * fit);
+              tableCanvas.width = 0; tableCanvas.height = 0;
+              pctx.fillStyle = '#888';
+              pctx.font = (10 * RENDER_SCALE) + 'px ' + FONT_STACK;
+              pctx.fillText(ws.name + (pageTotal > 1 ? '  —  ' + pageNo + ' / ' + pageTotal : ''), MARGIN * RENDER_SCALE, (pageH - MARGIN / 2) * RENDER_SCALE);
+              await addCanvasPage(pdfDoc, pageCanvas, pageW, pageH);
+              rendered++;
+            }
+          }
+        }
+        let loadedPics = 0;
+        wb.eachSheet((w) => { loadedPics += w.getImages().length; });
+        if (picCount > loadedPics) skippedImages = true; // the file holds pictures ExcelJS could not read
+        if (skippedImages) notify('warnOfficeImages');
+        if (!rendered) throw new OfficeConvertError('empty');
+      }
+
+      // ---- Entry point ------------------------------------------------
+      // Returns PDF bytes (Uint8Array). Throws OfficeConvertError / lib load errors.
+      async function convertOfficeToPdf(file, kind) {
+        const L = I18N[state.lang];
+        const warnings = [];
+        const notify = (key) => { if (!warnings.includes(key)) warnings.push(key); };
+        const progress = (n, total) => setLoading(true, total ? L.loadingConvert(n, total) : L.loadingConvertGeneric);
+        if (!window.PDFLib) throw new OfficeConvertError('pdflib');
+        setLoading(true, L.loadingLibs);
+        const pdfDoc = await window.PDFLib.PDFDocument.create();
+        const host = await createRenderHost();
+        try {
+          if (kind === 'word') await convertWord(file, host, pdfDoc, progress);
+          else if (kind === 'ppt') await convertPpt(file, host, pdfDoc, progress);
+          else await convertExcel(file, host, pdfDoc, progress, notify);
+        } finally {
+          host.remove();
+        }
+        return { bytes: await pdfDoc.save(), warnings };
+      }
+
+      // Parse PDF bytes with pdf.js and show the first page. Shared by PDF uploads and Office conversions.
+      async function loadPdfBytes(bytes) {
+        state.pdfBytes = bytes;
+        if (!window.pdfjsLib) {
+          throw new Error('PDF.js 尚未載入完成');
+        }
+        const loadingTask = window.pdfjsLib.getDocument({ data: bytes.slice() });
+        const pdfDoc = await loadingTask.promise;
+        state.fileType = 'pdf';
+        state.imageObj = null;
+        state.pdfDocJs = pdfDoc;
+        state.pdfNumPages = pdfDoc.numPages;
+        state.pdfPageNum = 1;
+
+        els.fileTypeBadge.textContent = I18N[state.lang][OFFICE_KINDS[state.sourceKind] ? OFFICE_KINDS[state.sourceKind].badge : 'badgePdf'];
+        els.pdfPageControls.classList.remove('hidden');
+        els.pdfPageControls.classList.add('flex');
+        els.photoFormatWrap.classList.add('hidden');
+        await renderPdfPage(1);
+        return pdfDoc;
+      }
+
+      // Word / Excel / PowerPoint -> PDF (locally), then continue as a normal PDF
+      async function handleOfficeFile(file, kind) {
+        const L = I18N[state.lang];
+        setLoading(true, L.loadingLibs);
+        try {
+          const { bytes, warnings } = await convertOfficeToPdf(file, kind);
+          state.fileName = file.name;
+          els.fileNameLabel.textContent = file.name;
+          els.fileNameLabel.classList.remove('hidden');
+          state.sourceKind = kind;
+          const pdfDoc = await loadPdfBytes(bytes);
+          showToast(L.toastLoadedOffice(OFFICE_KINDS[kind].label, pdfDoc.numPages));
+          // Show warnings after the success toast so they are not overwritten
+          const stillCurrent = () => state.sourceKind === kind && state.fileName === file.name;
+          if (warnings.length) setTimeout(() => { if (stillCurrent()) showToast(warnings.map((key) => I18N[state.lang][key]).join('\n'), 4000 + warnings.length * 2500); }, 2800);
+        } catch (err) {
+          console.error('Office conversion failed:', err);
+          const msg = String((err && err.message) || '');
+          showToast(msg.startsWith('lib:') ? L.errOfficeLib
+            : msg === 'too-big' ? L.errOfficeTooBig
+            : L.errOfficeConvert);
+          setLoading(false);
+        }
+      }
+
+      // Handle uploaded file (Image, PDF or Office document)
       async function handleFile(file) {
         if (!file) return;
+        const officeKind = detectOfficeKind(file);
+        if (officeKind === 'legacy') {
+          showToast(I18N[state.lang].errLegacyOffice);
+          return;
+        }
+        if (officeKind) {
+          await handleOfficeFile(file, officeKind);
+          return;
+        }
+
         const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
         const isImage = file.type.startsWith('image/') || /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(file.name);
 
         if (!isPdf && !isImage) {
-          showToast('請選擇照片或 PDF 檔案');
+          showToast(I18N[state.lang].errUnsupportedFile);
           return;
         }
 
         state.fileName = file.name;
+        state.sourceKind = isPdf ? 'pdf' : 'image';
         els.fileNameLabel.textContent = file.name;
         els.fileNameLabel.classList.remove('hidden');
 
         if (isImage) {
-          setLoading(true, '載入照片中...');
+          setLoading(true, I18N[state.lang].loadingPhoto);
           try {
             const url = URL.createObjectURL(file);
             const img = new Image();
@@ -804,50 +1527,44 @@ Under the NDA agreement</textarea>
             els.pdfPageControls.classList.remove('flex');
             els.photoFormatWrap.classList.remove('hidden');
             renderPreview();
-            showToast('已載入照片');
+            showToast(I18N[state.lang].toastLoadedImg);
           } catch (err) {
-            showToast('無法讀取此圖片格式');
+            showToast(I18N[state.lang].errPhotoRead);
           } finally {
             setLoading(false);
           }
         } else {
-          setLoading(true, '解析 PDF 中...');
+          setLoading(true, I18N[state.lang].loadingPdfParse);
           try {
             const buf = await file.arrayBuffer();
-            state.pdfBytes = new Uint8Array(buf);
-            if (!window.pdfjsLib) {
-              throw new Error('PDF.js 尚未載入完成');
-            }
-            const loadingTask = window.pdfjsLib.getDocument({ data: state.pdfBytes.slice() });
-            const pdfDoc = await loadingTask.promise;
-            state.fileType = 'pdf';
-            state.pdfDocJs = pdfDoc;
-            state.pdfNumPages = pdfDoc.numPages;
-            state.pdfPageNum = 1;
-
-            els.fileTypeBadge.textContent = I18N[state.lang].badgePdf;
-            els.pdfPageControls.classList.remove('hidden');
-            els.pdfPageControls.classList.add('flex');
-            els.photoFormatWrap.classList.add('hidden');
-            await renderPdfPage(1);
-            showToast(`已載入 PDF（共 ${pdfDoc.numPages} 頁）`);
+            const pdfDoc = await loadPdfBytes(new Uint8Array(buf));
+            showToast(I18N[state.lang].toastLoadedPdf(pdfDoc.numPages));
           } catch (err) {
-            showToast('PDF 讀取失敗，請確認檔案未加密損毀');
+            showToast(I18N[state.lang].errPdfRead);
             setLoading(false);
           }
         }
       }
 
       // Share or download helper (iOS Safari friendly)
+      // The share sheet is only the right "save" UX on phones/tablets. Desktop Chrome/Edge also report
+      // canShare(files)=true, but there it opens the OS share dialog (or silently does nothing) instead of saving.
+      function isTouchMobileDevice() {
+        const ua = navigator.userAgent || '';
+        if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+        if (navigator.userAgentData && navigator.userAgentData.mobile) return true;
+        return /Macintosh/.test(ua) && navigator.maxTouchPoints > 1; // iPadOS reports a desktop UA
+      }
+
       async function deliverBlob(blob, filename) {
         const file = new File([blob], filename, { type: blob.type });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        if (isTouchMobileDevice() && navigator.canShare && navigator.canShare({ files: [file] })) {
           try {
             await navigator.share({
               files: [file],
               title: filename
             });
-            showToast('已開啟分享 / 儲存選單');
+            showToast(I18N[state.lang].toastShareOpened);
             return;
           } catch (err) {
             if (err && err.name === 'AbortError') return;
@@ -861,17 +1578,17 @@ Under the NDA agreement</textarea>
         a.click();
         a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 4000);
-        showToast('已開始下載成品');
+        showToast(I18N[state.lang].toastDownloaded);
       }
 
       // Export final watermarked Photo or PDF
       async function exportResult() {
         if (state.fileType === 'pdf' && state.pdfBytes) {
           if (!window.PDFLib) {
-            showToast('PDF 輸出元件尚未載入，請稍候再試');
+            showToast(I18N[state.lang].errPdfLib);
             return;
           }
-          setLoading(true, '正在產生浮水印 PDF...');
+          setLoading(true, I18N[state.lang].loadingExportPdf);
           try {
             const pdfDoc = await window.PDFLib.PDFDocument.load(state.pdfBytes);
             const pages = pdfDoc.getPages();
@@ -880,7 +1597,7 @@ Under the NDA agreement</textarea>
             const wmCache = new Map();
 
             for (let i = 0; i < pages.length; i++) {
-              setLoading(true, `處理第 ${i + 1} / ${pages.length} 頁...`);
+              setLoading(true, I18N[state.lang].loadingExportPage(i + 1, pages.length));
               const page = pages[i];
               const { width, height } = page.getSize();
               const key = `${Math.round(width)}x${Math.round(height)}`;
@@ -910,15 +1627,15 @@ Under the NDA agreement</textarea>
 
             const outBytes = await pdfDoc.save();
             const outBlob = new Blob([outBytes], { type: 'application/pdf' });
-            const baseName = state.fileName.replace(/\.pdf$/i, '');
-            await deliverBlob(outBlob, `${baseName}_浮水印.pdf`);
+            const baseName = state.fileName.replace(/\.[^.]+$/, '');
+            await deliverBlob(outBlob, `${baseName}_wm.pdf`);
           } catch (err) {
-            showToast('PDF 匯出失敗，請重試');
+            showToast(I18N[state.lang].errPdfExport);
           } finally {
             setLoading(false);
           }
         } else {
-          setLoading(true, '正在合成高畫質照片...');
+          setLoading(true, I18N[state.lang].loadingExportPhoto);
           try {
             const base = state.baseCanvas;
             const out = document.createElement('canvas');
@@ -934,9 +1651,9 @@ Under the NDA agreement</textarea>
             const blob = await new Promise((res) => out.toBlob(res, mime, quality));
             const baseName = state.fileName.replace(/\.[^.]+$/, '');
             const ext = isPng ? 'png' : 'jpg';
-            await deliverBlob(blob, `${baseName}_浮水印.${ext}`);
+            await deliverBlob(blob, `${baseName}_wm.${ext}`);
           } catch (err) {
-            showToast('照片匯出失敗');
+            showToast(I18N[state.lang].errPhotoExport);
           } finally {
             setLoading(false);
           }
@@ -1077,6 +1794,14 @@ Under the NDA agreement</textarea>
         document.getElementById('modalTip3Title').textContent = L.modalTip3Title;
         document.getElementById('modalTip3Body').textContent = L.modalTip3Body;
         els.confirmModalBtn.textContent = L.modalConfirm;
+        if (els.loadingOverlay.classList.contains('hidden')) els.loadingText.textContent = L.loadingDefault;
+        els.prevPageBtn.setAttribute('aria-label', L.ariaPrev);
+        els.nextPageBtn.setAttribute('aria-label', L.ariaNext);
+        document.querySelectorAll('.color-swatch').forEach((btn) => {
+          btn.setAttribute('aria-label', L['color_' + btn.dataset.color.replace('#', '').toUpperCase()] || '');
+        });
+        const customLabel = els.colorPicker.closest('label');
+        if (customLabel) customLabel.title = L.colorCustom;
 
         if (state.fileType === 'sample') {
           buildSampleBaseCanvas();
@@ -1086,7 +1811,7 @@ Under the NDA agreement</textarea>
           els.fileTypeBadge.textContent = L.badgeImage;
           els.dimensionInfo.textContent = L.dimSize(state.baseCanvas.width, state.baseCanvas.height);
         } else if (state.fileType === 'pdf') {
-          els.fileTypeBadge.textContent = L.badgePdf;
+          els.fileTypeBadge.textContent = L[OFFICE_KINDS[state.sourceKind] ? OFFICE_KINDS[state.sourceKind].badge : 'badgePdf'];
           els.dimensionInfo.textContent = L.dimPdf(state.pdfPageNum, state.pdfNumPages);
         }
       }
@@ -1201,7 +1926,7 @@ Under the NDA agreement</textarea>
         state.pdfBytes = null;
         state.pdfDocJs = null;
         buildSampleBaseCanvas();
-        showToast('已切換回範例文件');
+        showToast(I18N[state.lang].toastSample);
       });
 
       els.resetStyleBtn.addEventListener('click', () => {
@@ -1211,7 +1936,7 @@ Under the NDA agreement</textarea>
           email: state.watermark.email,
           text: state.watermark.text,
           mode: 'single',
-          overallScale: 125,
+          overallScale: 150,
           spacing: 100,
           fontSize: 34,
           bold: true,
@@ -1221,7 +1946,7 @@ Under the NDA agreement</textarea>
         };
         syncControlsUI();
         renderPreview();
-        showToast('已重設浮水印樣式');
+        showToast(I18N[state.lang].toastResetStyle);
       });
 
       els.exportBtn.addEventListener('click', exportResult);
@@ -1259,7 +1984,7 @@ Under the NDA agreement</textarea>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js').then(() => {
-            showToast('已啟用離線快取，沒網路也能使用');
+            showToast(I18N[state.lang].toastOffline);
           }).catch(() => {});
         });
       }

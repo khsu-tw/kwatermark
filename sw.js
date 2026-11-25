@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kwatermark-v7';
+const CACHE_NAME = 'kwatermark-v11';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -8,7 +8,14 @@ const CORE_ASSETS = [
   'https://cdn.tailwindcss.com/3.4.17',
   'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+  // Office -> PDF converters (lazy-loaded by the page, precached for offline use)
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+  'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+  'https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js',
+  'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js',
+  'https://cdn.jsdelivr.net/npm/ssf@0.11.2/ssf.js',
+  'https://cdn.jsdelivr.net/npm/pptx-preview@1.0.7/dist/pptx-preview.umd.js'
 ];
 
 self.addEventListener('install', (event) => {
